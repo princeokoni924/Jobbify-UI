@@ -1,0 +1,64 @@
+// validation function
+export const validateEmail = (email) => {
+  if (!email.trim()) return "Email address is required";
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) return "Please use a valid email address";
+  return "";
+};
+
+export const validatePassword = (password) => {
+  //  const strongPass = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{10,}$/;
+  //  if(!password) return 'Password is required'
+  //if(password.length<10) return "Password must be at least 10 characters";
+  //  if(!strongPass.test(password)){
+  //   return "Password must include uppercase, lowercase, number, special character (min 10 characters)"
+  //  }
+  if (!password) return "Password is required";
+
+  if (!/^(?=.*[a-z]).*/.test(password)) {
+    return "Password must contain at least one lowercase letter.";
+  }
+
+  if (!/^(?=.*[A-Z]).*/.test(password)) {
+    return "Password must contain at least one uppercase letter.";
+  }
+
+  if (!/^(?=.*\d)/.test(password)) {
+    return "Password must have at least one digit ";
+  }
+  if (!/.{10,}$/.test(password)) {
+    return "Password must be at least 10 characters long.";
+  }
+  if (!/^(?=.*[!@#$%^&*]).*/.test(password)) {
+    return "Password must contain at least one special character.";
+  }
+  return "";
+};
+
+export const validateAvater =(file)=>{
+if(file){
+  return ""; // avater is optional
+}
+ const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+if(!allowedTypes.includes(file.type)){
+  return "profile picture must be a JPG, JPEG or PNG"
+}
+const maxSize = 5*1024*1024;
+if(file.size >maxSize){
+  return `Profile picture must be less than 5MB. Your file is ${(file.size / (1024 * 1024)).toFixed(2)}MB`;
+}
+return "";
+}
+
+// LIVE PASSWORD VALIDATION FUNCTION
+ export const checkPasswordRule = (password) => {
+  return {
+    lower: /[a-z]/.test(password),
+    upper: /[A-Z]/.test(password),
+    number: /\d/.test(password),
+    special: /[!@#$%^&*]/.test(password),
+    length: password.length >= 10,
+  };
+};
+
+
