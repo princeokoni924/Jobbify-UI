@@ -23,6 +23,9 @@ const Header = () => {
               <Briefcase className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold text-gray-900">Jobify</span>
+           <div className="">
+            <h4>Connecting Talent to Opportunity</h4>
+            </div> 
           </div>
           {/* Navigation link Hidden on mobile */}
           <nav className="hidden md:flex space-x-8">

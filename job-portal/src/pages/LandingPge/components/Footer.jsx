@@ -13,7 +13,7 @@ const Footer = () => {
                 <div className="w-10 h-10  bg-gradient-to-br from-blue-600 to-purple-700 rounded-lg flex items-center justify-center">
                   <Briefcase className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-800">Job Runner</h3>
+                <h3 className="text-2xl font-bold text-gray-800">Jobify</h3>
               </div>
               
             </div>
