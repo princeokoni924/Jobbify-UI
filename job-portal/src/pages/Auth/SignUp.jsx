@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
-import { validateEmail, validateAvater, validatePassword } from "../utils/helpler";
+import {
+  validateEmail,
+  validateAvatar,
+  validatePassword,
+} from "../utils/helpler";
+import  uploadImage  from "../utils/uploadStorage";
 import {
   User,
   Lock,
@@ -15,32 +20,28 @@ import {
   AlertCircle,
   Loader,
 } from "lucide-react";
+import axiosInstance from "../utils/axiosInstance";
+import { API_PATHS } from "../utils/apiPath";
+import {useAuth} from '../../content/AuthContext'
 
 const SignUp = () => {
+  const {login} = useAuth();
+
   const [formData, setFormData] = useState({
     fullName: "",
     password: "",
     email: "",
     role: "",
-    avater: null,
+    avatar: null,
   });
   const [formState, setFormState] = useState({
     loading: false,
     error: {},
     showPassword: false,
-    avaterPreview: false,
+    avatarPreview: false,
     success: false,
   });
- //Password Rule
-//  const [passwordRule, setPasswordRule] = useState({
-//   lower: false,
-//     upper: false,
-//     number: false,
-//     special: false,
-//     length: false,
-//  });
 
-  
   // Handle text input
   const handleInputChanges = (event) => {
     const { name, value } = event.target;
@@ -49,100 +50,125 @@ const SignUp = () => {
       [name]: value,
     }));
 
- // real-time password validation
-    // if (name === "password") {
-    //   setPasswordRule(checkPasswordRule(value));
-    // }
-
-
     // clear error when user start typing
     if (formState.error[name]) {
       setFormState((prev) => ({
         ...prev,
-        error: { ...prev, [name]: "" },
+        error: { ...prev.error, [name]: "" },
       }));
     }
   };
 
   // handle Role
   const handleRoleChanges = (role) => {
-    setFormData((prev)=>({
-      ...prev, role,
+    setFormData((prev) => ({
+      ...prev,
+      role,
     }));
-    if(formState.error.role){
-      setFormState((prev)=>({
+    if (formState.error.role) {
+      setFormState((prev) => ({
         ...prev,
-        error:{...prev.error, role:""},
-
-      }))
+        error: { ...prev.error, role: "" },
+      }));
     }
   };
 
-  // handle Avater
-  const handleAvaterChange = (avater) => {
-    const file = avater.target.files[0];
-    if(file){
-      const error = validateAvater(file);
-      if(error){
-        setFormState((prev)=>({
-          ...prev, error:{...prev.error, avater: error},
+  // handle avatar
+  const handleAvatarChange = (avatar) => {
+    const file = avatar.target.files[0];
+    if (file) {
+      const error = validateAvatar(file);
+      if (error) {
+        setFormState((prev) => ({
+          ...prev,
+          error: { ...prev.error, avatar: error },
         }));
         return;
       }
-      setFormData((prev)=>({...prev, avater: file}));
+      setFormData((prev) => ({ ...prev, avatar: file }));
       // create preview
       const reader = new FileReader();
-      reader.onload=(avater)=>{
-        setFormState((prev)=>({...prev, avaterPreview:avater.target.result,
-          error:{...prev.error, avater:""}
+      reader.onload = (avatar) => {
+        setFormState((prev) => ({
+          ...prev,
+          avatarPreview: avatar.target.result,
+          error: { ...prev.error, avatar: "" },
         }));
-      }
+      };
       reader.readAsDataURL(file);
     }
   };
 
   // validate form
   const validateForm = () => {
-    //const isPasswordValid = Object.values(passwordRule).every(Boolean);
-    const error={
-      fullName: !formData.fullName ? "Kindly enter your full name":"",
+    const error = {
+      fullName: !formData.fullName ? "Kindly enter your full name" : "",
       email: validateEmail(formData.email),
       password: validatePassword(formData.password),
-      // password: !isPasswordValid ? "Password doesn't meet the criteria":"",//validatePassword(formData.password),
-      role:!formData.role ? "Kindly select a role":"",
-      avater:"",
+      role: !formData.role ? "Kindly select a role" : "",
+      avatar: "",
     };
 
     // remove empty error when typing
-    Object.keys(error).forEach(keys=>{
-      if(!error[keys]){
-        delete error[keys]
+    Object.keys(error).forEach((keys) => {
+      if (!error[keys]) {
+        delete error[keys];
       }
     });
-    setFormState((prev)=>({...prev,error}));
-    return Object.keys(error).length === 0
+    setFormState((prev) => ({ ...prev, error }));
+    return Object.keys(error).length === 0;
   };
 
   //handle submit
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if(!validateForm()) return;
-    setFormState((prev)=>({...prev, loading:true}));
+    if (!validateForm()) return;
+    setFormState((prev) => ({ ...prev, loading: true }));
 
-    try{
-         /// api call
-         setTimeout(() => {
-        setFormState((prev) => ({ ...prev, success: true, loading: false }));
+    try {
+      // api call
+      let avatarUrl = "";
+      
+      // upload img if present
+      if (formData.avatar) {
+        const imgUploadResponse = await uploadImage(formData.avatar);
+        avatarUrl = imgUploadResponse?.imgUrl ?? "";
+      }
+
+      const response = await axiosInstance.post(API_PATHS.AUTH.REGISTER, {
+        name: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role,
+        avatar: avatarUrl || "",
+      });
+      // handle successful registration
+      const { token } = response.data;
+      setFormState((prev) => ({
+        ...prev,
+        loading: false,
+        success: true,
+        error: {},
+      }));
+      if (token) {
+        login(response.data, token);
+      }
+      // redirect base on role.
+      setTimeout(() => {
+        // setFormState((prev) => ({ ...prev, success: true, loading: false }));
+        window.location.href =
+          formData.role === "employer" ? "/employer-dashboard" : "/find-jobs";
       }, 2000);
-
-    }catch(error){
+    } catch (error) {
       console.log("error", error);
-      setFormState((prev)=>({
-        ...prev, loading:false,
-          error:{
-            submit:
-            error.response?.data.message || "Registration fail. Kindly try again."
-          },
+      setFormState((prev) => ({
+        ...prev,
+        loading: false,
+        error: {
+          submit:
+            error.response?.data.message ||
+            "Registration fail. Kindly try again.",
+        },
       }));
     }
   };
@@ -211,7 +237,7 @@ const SignUp = () => {
                 duration-300`}
                 type="text"
                 name="fullName"
-                value={formState.fullName}
+                value={formData.fullName}
                 onChange={handleInputChanges}
                 placeholder="Enter your full name"
               />
@@ -297,30 +323,7 @@ const SignUp = () => {
                 )}
               </button>
             </div>
-            {/* LIVE PASSWORD RULES */}
-            {/* <div className="mt-2 space-y-1 text-sm">
-              {[
-                ["lower", "At least one lowercase letter"],
-                ["upper", "At least one uppercase letter"],
-                ["number", "At least one number"],
-                ["special", "At least one special character (!@#$%^&*)"],
-                ["length", "Minimum of 10 characters"],
-              ].map(([key, label]) => (
-                <p
-                  key={key}
-                  className={`flex items-center ${
-                    passwordRule[key] ? "text-green-600" : "text-red-500"
-                  }`}
-                >
-                  {passwordRule[key] ? (
-                    <CheckCircle className="w-4 h-4 mr-1" />
-                  ) : (
-                    <AlertCircle className="w-4 h-4 mr-1" />
-                  )}
-                  {label}
-                </p>
-              ))}
-            </div> */}
+
             {formState.error.password && (
               <p className="text-sm text-red-600 flex mt-1 items-center">
                 <AlertCircle className="w-4 h-4 mr-1" />
@@ -335,10 +338,10 @@ const SignUp = () => {
             </label>
             <div className="flex items-center space-x-4">
               <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
-                {formState.avaterPreview ? (
+                {formState.avatarPreview ? (
                   <img
-                    src={formState.avaterPreview}
-                    alt="Avater preview"
+                    src={formState.avatarPreview}
+                    alt="avatar preview"
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -348,13 +351,13 @@ const SignUp = () => {
               <div className="">
                 <input
                   type="file"
-                  id="avater"
+                  id="avatar"
                   className="hidden"
                   accept=".jpg, .jpeg, .png"
-                  onChange={handleAvaterChange}
+                  onChange={handleAvatarChange}
                 />
                 <label
-                  htmlFor="avater"
+                  htmlFor="avatar"
                   className="cursor-pointer bg-gray-50 border border-gray-300
                  rounded-lg px-4 py-2 text-sm
                   font-medium  text-gray-700
@@ -369,10 +372,10 @@ const SignUp = () => {
                 </p>
               </div>
             </div>
-            {formState.error.avater && (
+            {formState.error.avatar && (
               <p className="text-red-500 text-sm mt-1 flex items-center">
                 <AlertCircle className="w-4 h-4 mr-1" />
-                {formState.error.avater}
+                {formState.error.avatar}
               </p>
             )}
           </div>
@@ -398,6 +401,7 @@ const SignUp = () => {
                 </div>
               </button>
               <button
+              type="button"
                 className={`p-4 rounded-lg border-2 transition-all ${
                   formData.role === "employer"
                     ? "border-blue-500 bg-blue-50 text-blue-700"
@@ -458,8 +462,11 @@ const SignUp = () => {
           <div className="text-center">
             <p className="text-gray-600">
               Already have an account{""}
-              <a href="/login" className="font-medium text-blue-600 hover:text-blue-700 p-2">
-                 Login here
+              <a
+                href="/login"
+                className="font-medium text-blue-600 hover:text-blue-700 p-2"
+              >
+                Login here
               </a>
             </p>
           </div>

@@ -7,12 +7,6 @@ export const validateEmail = (email) => {
 };
 
 export const validatePassword = (password) => {
-  //  const strongPass = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{10,}$/;
-  //  if(!password) return 'Password is required'
-  //if(password.length<10) return "Password must be at least 10 characters";
-  //  if(!strongPass.test(password)){
-  //   return "Password must include uppercase, lowercase, number, special character (min 10 characters)"
-  //  }
   if (!password) return "Password is required";
 
   if (!/^(?=.*[a-z]).*/.test(password)) {
@@ -35,7 +29,7 @@ export const validatePassword = (password) => {
   return "";
 };
 
-export const validateAvater =(file)=>{
+export const validateAvatar =(file)=>{
 if(file){
   return ""; // avater is optional
 }
