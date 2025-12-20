@@ -42,7 +42,7 @@ const App = () => {
           <Route path="/post-job" element={<JobPostingForm />} />
           <Route path="/manage-jobs" element={<ManageJob />} />
           <Route path="/applicants" element={<ApplicationView />} />
-          <Route path="/company-profile" element={<EmployerProfilePage />} />
+          <Route path="/employer-profile" element={<EmployerProfilePage />} />
 
 
           {/* Catch all Routes */}

@@ -20,10 +20,11 @@ const Header = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center space-x-3">
-            <div className="w-h h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-md flex items-center justify-center">
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-300 to-blue-400 rounded-md flex items-center justify-center">
               <Briefcase className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-gray-900">Jobify</span>
+            <span className="text-xl
+            bg-gradient-to-r bg-clip-text from-blue-600 to-purple-800 text-transparent font-bold text-gray-900">Jobify</span>
            <div className="">
             <h4>Connecting Talent to Opportunity</h4>
             </div> 

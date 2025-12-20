@@ -72,7 +72,7 @@ export const NAVIGATION_MENU = [
   { id: "employer-dashboard", name: "dashboard", icon: LayoutDashboard },
   { id: "post-job", name: "post job", icon: Plus },
   { id: "manage-jobs", name: "manage jobs", icon: Briefcase },
-  { id: "company-profiles", name: "company profiles", icon: Building2 },
+  { id: "employer-profile", name: "company profiles", icon: Building2 },
 ];
 // Categories and job types
 export const JOB_CATEGORIES = [
