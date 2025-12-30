@@ -29,23 +29,26 @@ export const validatePassword = (password) => {
   return "";
 };
 
-export const validateAvatar =(file)=>{
-if(file){
-  return ""; // avater is optional
-}
- const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
-if(!allowedTypes.includes(file.type)){
-  return "profile picture must be a JPG, JPEG or PNG"
-}
-const maxSize = 5*1024*1024;
-if(file.size >maxSize){
-  return `Profile picture must be less than 5MB. Your file is ${(file.size / (1024 * 1024)).toFixed(2)}MB`;
-}
-return "";
-}
+export const validateAvatar = (file) => {
+  if (file) {
+    return ""; // avater is optional
+  }
+  const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+  if (!allowedTypes.includes(file.type)) {
+    return "profile picture must be a JPG, JPEG or PNG";
+  }
+  const maxSize = 5 * 1024 * 1024;
+  if (file.size > maxSize) {
+    return `Profile picture must be less than 5MB. Your file is ${(
+      file.size /
+      (1024 * 1024)
+    ).toFixed(2)}MB`;
+  }
+  return "";
+};
 
 // LIVE PASSWORD VALIDATION FUNCTION
- export const checkPasswordRule = (password) => {
+export const checkPasswordRule = (password) => {
   return {
     lower: /[a-z]/.test(password),
     upper: /[A-Z]/.test(password),
@@ -55,4 +58,11 @@ return "";
   };
 };
 
-
+export const getInitials = (name) => {
+  return name
+    .split(" ")
+    .map((word) => word.CharAt(0))
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+};
