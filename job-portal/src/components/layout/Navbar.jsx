@@ -1,98 +1,3 @@
-// // import { useState, useEffect } from "react";
-// // import { Briefcase, Bookmark } from "lucide-react";
-// // import { Link, useNavigate } from "react-router-dom";
-// // import { useAuth } from "../../content/AuthContext";
-// // import ProfileDropdown from "./ProfileDropdown";
-
-//  const Navbar = () => {
-// //   const { user, isAuthenticate, logout } = useAuth();
-// //   const navigate = useNavigate();
-
-// //   // state management
-// //   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
-
-// //   // close dropdown when clicking outside
-// //   useEffect(() => {
-// //     const handleClickOutSide = () => {
-// //       if (profileDropdownOpen) {
-// //         setProfileDropdownOpen(false);
-// //       }
-// //     };
-// //     document.addEventListener("click", handleClickOutSide);
-// //     return () => document.removeEventListener("click", handleClickOutSide);
-
-// //     //return ()=>{}
-// //   }, [profileDropdownOpen]);
-
-// //   return (
-// //     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100">
-// //       <div className="container mx-auto px-4">
-// //         <div className="flex items-center justify-between h-16">
-// //           {/* Logo */}
-// //           <Link to={`/`} className="flex items-center space-x-3">
-// //             <div className="w-8 h-8  bg-gradient-to-r from-blue-500 to-blue-700 rounded-lg flex items-center justify-center">
-// //               <Briefcase className="w-5 h-5 text-white" />
-// //             </div>
-// //             <span className="text-lg font-bold bg-gradient-to-r  from-blue-600 to-purple-700 bg-clip-text text-transparent">
-// //               Jobify
-// //             </span>
-// //           </Link>
-
-// //           {/* Action Btn */}
-// //           <div className="flex items-center space-x-3">
-// //             {user && (
-// //               <button
-// //                 className="p-2 rounded-xl hover:bg-gray-100 transition-colors duration-200 relative"
-// //                 onClick={() => navigate("/save-jobs")}
-// //               >
-// //                 <Bookmark className="h-5 w-5 text-gray-500" />
-// //               </button>
-// //             )}
-
-// //             {isAuthenticate ? (
-// //               <ProfileDropdown
-// //                 isOpen={profileDropdownOpen}
-// //                 onToggle={(e) => {
-// //                   e.stopPropagation();
-// //                   setProfileDropdownOpen(!profileDropdownOpen);
-// //                 }}
-// //                 avatar={user?.avatar || ""}
-// //                 companyName={user?.name || ""}
-// //                 email={user?.email || ""}
-// //                 userRole={user?.role || ""}
-// //                 onLogout={logout}
-// //               />
-// //             ) : (
-// //               <>
-// //                 {/* // Sign In */}
-// //                 <a
-// //                   className="text-gray-600 hover:text-gray-900 transition-colors font-medium px-4 py-2 rounded-lg hover:bg-gray-50"
-// //                   href="/login"
-// //                 >
-// //                   Login
-// //                 </a>
-// //                 {/* // Sign Up */}
-// //                 <a
-// //                   href="/signup"
-// //                   className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg hover:from-blue-700
-// //                  hover:topurple-700 transition-all
-// //                   duration-200 shadow-sm font-medium hover:shadow-md"
-// //                 >
-// //                   Sign Up
-// //                 </a>
-// //               </>
-// //             )}
-// //           </div>
-// //         </div>
-// //       </div>
-// //     </header>
-// //   );
-// };
-
-// export default Navbar;
-
-
-
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { 
@@ -221,7 +126,7 @@ const Navbar = () => {
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-2 rounded-lg">
               <Briefcase className="h-6 w-6 text-white" />
             </div>
-            <span className="text-xl font-bold text-gray-900">JobPortal</span>
+            <span className="text-xl font-bold bg-gradient-to-r from-blue-800 to-purple-800 bg-clip-text text-transparent">Jobify</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -250,7 +155,7 @@ const Navbar = () => {
                   className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors font-medium"
                 >
                   <LogOut className="w-4 h-4" />
-                  Logout
+                  Leave
                 </button>
               </div>
             ) : (
@@ -416,7 +321,7 @@ const UserMenu = ({
               className="w-full flex items-center gap-3 px-4 py-2.5 text-red-600 hover:bg-red-50 transition-colors text-left"
             >
               <LogOut className="w-4 h-4" />
-              <span className="font-medium">Logout</span>
+              <span className="font-medium">Leave</span>
             </button>
           </div>
         </div>
@@ -534,7 +439,7 @@ const MobileMenu = ({
               className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors font-medium"
             >
               <LogOut className="w-5 h-5" />
-              Logout
+              Leave
             </button>
           </div>
         ) : (
