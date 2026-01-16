@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useState } from "react";
 import { Building2, Mail, Edit3, Users } from "lucide-react";
 import { useAuth } from "../../content/AuthContext";
@@ -53,69 +54,24 @@ const EmployerProfilePage = () => {
     }
   };
 
-  //   const handleImgUploadAsync = async (file, type) => {
-  //     setUploading((prev) => ({
-  //       ...prev,
-  //       [type]: true,
-  //     }));
-
-  //     try {
-  //       const response = await uploadImage(file);
-  //       const url = response.imgUrl || "";
-
-  // // update form data with new img url
-  //       const field = type === "avatar" ? "avatar" : "companyLogo";
-
-  //       // Save cloud/storage url
-  //       setFormData((prev) => ({
-  //         ...prev,
-  //         [field]: url,
-  //       }));
-  //     } finally {
-  //       setUploading((prev) => ({ ...prev, [type]: false }));
-  //     }
-  //   };
+ 
 
   // handle img change
   const handleImgChange = (e, type) => {
-    if(!e?.target?.files?.length)return;
+    //if(!e?.target?.files?.length)return;
     const file = e.target.files[0];
     if (file) {
       // create preview url
       const previewUrl = URL.createObjectURL(file);
       const field = type === "avatar" ? "avatar" : "companyLogo";
-      handleImgChange(field, previewUrl);
-
-      setFormData((prev)=>({
-       ...prev,
-       [field]:previewUrl
-      }))
+      handleInputChange(field, previewUrl);
 
       // upload img
       handleImgUploadAsync(file, type);
     }
   };
 
-  // AI
-  // const handleImgChange = (e, type) => {
-  //   if (!e?.target?.files?.length) return;
-
-  //   const file = e.target.files[0];
-
-  //   // create preview
-  //   const previewUrl = URL.createObjectURL(file);
-
-  //   const field = type === "avatar" ? "avatar" : "companyLogo";
-
-  //   // update preview immediately
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     [field]: previewUrl,
-  //   }));
-
-  //   // upload to storage
-  //   handleImgUploadAsync(file, type);
-  // };
+  
 
   // save img
   const handleSaveAsync = async () => {
@@ -126,10 +82,13 @@ const EmployerProfilePage = () => {
         formData
       );
       if (response.status === 200) {
+        const updatedUser = response.data.user ?? {...user, ...formData};
         toast.success("Profile Image updated successfully!!");
         // update profile data and exit edit mode
-        setProfileData({...formData});
-        updateUser({...formData});
+        setProfileData(updatedUser);
+        //setProfileData({...formData});
+        //updateUser({...formData});
+        updateUser(updatedUser);
         setEditMode(false);
       }
     } catch (err) {

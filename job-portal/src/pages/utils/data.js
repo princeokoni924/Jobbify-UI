@@ -95,7 +95,7 @@ export const JOB_TYPES = [
   { value: "part-time", label: "Part-time" },
   { value: "contract", label: "Contract" },
   { value: "internship", label: "Internship" },
-  { value: "temporary", label: "Temporary" },
+  // { value: "temporary", label: "Temporary" },
   { value: "freelance", label: "Freelance" },
   { value: "remote", label: "Remote" },
 ];

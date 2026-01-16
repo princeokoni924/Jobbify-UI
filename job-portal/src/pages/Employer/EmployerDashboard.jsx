@@ -99,43 +99,13 @@ const EmployerDashboard = () => {
     }
   };
 
-  // useEffect(() => {
-  //   getDashboardOverview();
-  //   return () => {};
-  // }, []);
+  useEffect(() => {
+    getDashboardOverview();
+    return () => {};
+  }, []);
 
 
-//   useEffect(() => {
-//   (async () => {
-//     try{
-//       setIsLoading(true);
-//       const res = await axiosInstance.get(API_PATHS.DASHBOARD.OVERVIEW);
-//       setDashboardData(res.data);
-//     } finally {
-//       setIsLoading(false);
-//     }
-//   })();
-// }, []);
 
-const [fastLoading, setFastLoading] = useState(true);
-useEffect(() =>{
-  async ()=>{
-    try{
-      if(fastLoading){
-        setIsLoading(true);
-      }
-      const res = await axiosInstance.get(API_PATHS.DASHBOARD.OVERVIEW);
-      if(res.status ===200){
-        setDashboardData(res.data);
-      }
-    }catch(err){
-      console.log("error", err);
-    }finally{
-      setIsLoading(false);
-      setFastLoading(false);
-    }
-  }
-})
 
   return (
     <DashboardLayout activeMenu={`employer-dashboard`}>

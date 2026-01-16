@@ -3,7 +3,8 @@ import { Briefcase, Building2, LogOut, X, Menu } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../content/AuthContext";
 import { NAVIGATION_MENU } from "../../pages/utils/data";
-import ProfileDropdown from '../layout/ProfileDropdown'
+import ProfileDropdown from "../layout/ProfileDropdown";
+
 const DashboardLayout = ({ activeMenu, children }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -33,23 +34,10 @@ const DashboardLayout = ({ activeMenu, children }) => {
     );
   };
   //=======Mobile Responsive Behavior===========
-  // useEffect(() => {
-  //   const handleResize = () => {
-  //     setIsMobile(window.innerWidth < 768);
-  //   };
-
-  //   handleResize();
-  //   window.addEventListener("resize", handleResize);
-
-  //   return () => {
-  //     window.removeEventListener("resize", handleResize);
-  //   };
-  // }, []);
-
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
-      //       setIsMobile(window.innerWidth < 768);
+      //  setIsMobile(window.innerWidth < 768);
       setIsMobile(mobile);
       if (!mobile) {
         setIsMobile(false);
@@ -93,13 +81,13 @@ const DashboardLayout = ({ activeMenu, children }) => {
       {/* sideBar section*/}
       <div
         className={`fixed inset-y-8 left-0 z-50 transition-transform duration-300 transform ${
-          isMobile
-            ? sidebarOpen
-              ? "translate-x-0"
-              : "-translate-x-full"
-            : "translate-x-0"
+          isMobile // If the device is mobile
+            ? sidebarOpen  // If sidebarOpen is true → show the sidebar
+              ? "translate-x-0" // If sidebarOpen is false → hide it by sliding left
+              : "-translate-x-full" // Sidebar is completely off-screen to the left
+            : "translate-x-0" // Sidebar is visible
         } ${
-          sidebarCollapse ? "w-16" : "w-64"
+          sidebarCollapse ? "w-16" : "w-64"  /**Sidebar is always visible and Sidebar width = 16 (collapsed) */
         } bg-white border-r border-gray-200`}
       >
         {/* Company logo */}
@@ -141,13 +129,16 @@ const DashboardLayout = ({ activeMenu, children }) => {
             onClick={logout}
           >
             <LogOut className={`h-5 w-5 flex-shrink-0 text-gray-500`} />
-            {!sidebarCollapse && <span className="ml-3">Logout</span>}
+            {!sidebarCollapse && <span className="ml-3 text-red-500">Logout</span>}
           </button>
         </div>
       </div>
       {/* Mobile overlay */}
       {isMobile && sidebarOpen && (
-        <div className={`fixed inset-0 bg-black bg-opacity-25 z-40 backdrop-blur-sm`} onClick={() => setSidebarOpen(false)} />
+        <div
+          className={`fixed inset-0 bg-black bg-opacity-25 z-40 backdrop-blur-sm`}
+          onClick={() => setSidebarOpen(false)}
+        />
       )}
 
       {/* Main Content */}
@@ -157,37 +148,51 @@ const DashboardLayout = ({ activeMenu, children }) => {
         }`}
       >
         {/* Top Navbar */}
-        <header className="bg-white/80 backdrop-blur-sm
+        <header
+          className="bg-white/80 backdrop-blur-sm
          border-b border-gray-200 h-16
          flex items-center justify-between
-        px-6 sticky top-0 z-40">
+        px-6 sticky top-0 z-40"
+        >
           <div className={`flex items-center space-x-4`}>
             {isMobile && (
-              <button className={`p-2 rounded-xl hover:bg-gradient-to-r
+              <button
+                className={`p-2 rounded-xl hover:bg-gradient-to-r
                hover:from-blue-100
-                hover:to-blue-200 transition-colors duration-300`} onClick={toggleSidebar}>
-                {sidebarOpen ? <X className="h-5 w-5 text-gray-600" /> : <Menu className="h-5 w-5 text-gray-600" />}
+                hover:to-blue-200 transition-colors duration-300`}
+                onClick={toggleSidebar}
+              >
+                {sidebarOpen ? (
+                  <X className="h-5 w-5 text-gray-600" />
+                ) : (
+                  <Menu className="h-5 w-5 text-gray-600" />
+                )}
               </button>
             )}
             <div>
-              <h1 className="text-base font-semibold text-gray-900">Welcome Back!</h1>
-              <p className="text-sm sm:block hidden text-gray-500">Here's what's going with your Job today.</p>
+              <h1 className="text-base font-semibold text-gray-900">
+                Welcome Back!
+              </h1>
+              <p className="text-sm sm:block hidden text-gray-500">
+                Here's what's going with your Job today.
+              </p>
             </div>
           </div>
 
           <div className="flex items-center space-x-3">
-                {/* Profile Dropdown */}
-                <ProfileDropdown
-                isOpen={profileDropdownOpen}
-                onToggle={(e)=>{
+            {/* Profile Dropdown */}
+            <ProfileDropdown
+              isOpen={profileDropdownOpen}
+              onToggle={(e) => {
                 e.stopPropagation();
                 setProfileDropdownOpen(!profileDropdownOpen);
-                }}
-                avatar={user?.avatar || ""}
-                companyName={user?.name || ""}
-                email={user?.email || ''}
-                onLogout={logout}
-                />
+              }}
+              avatar={user?.avatar || ""}
+              companyName={user?.name || ""}
+              email={user?.email || ""}
+              userRole={user?.role}
+              onLogout={logout}
+            />
           </div>
         </header>
         {/* Main Content area */}

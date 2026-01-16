@@ -49,7 +49,7 @@ const ManageJob = () => {
         value_a = Number(value_a);
         value_b = Number(value_b);
       }
-
+    
       if (sortDirection === "asc") {
         return value_a > value_b ? 1 : -1;
       } else {
@@ -86,7 +86,7 @@ const ManageJob = () => {
       );
       getPostedJob(true);
    
-    // eslint-disable-next-line no-unused-vars
+
     } catch (err) {
       console.error("Error toggling job status");
     }
@@ -98,7 +98,7 @@ const ManageJob = () => {
       await axiosInstance.delete(API_PATHS.JOBS.DELETE_JOB(jobId));
       setJobs(jobs.filter((job) => job.id !== jobId));
       toast.success("Job deleted successfully!");
-    // eslint-disable-next-line no-unused-vars
+
     } catch (err) {
       console.error("Error deleting job");
     }

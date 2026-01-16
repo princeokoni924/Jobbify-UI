@@ -5,7 +5,11 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors:{
+        'orange_deep':"#E37434"
+      }
+    },
   },
   plugins: [
      require('tailwind-scrollbar')({ nocompatible: true }),

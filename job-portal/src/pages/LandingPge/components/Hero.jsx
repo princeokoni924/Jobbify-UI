@@ -8,7 +8,7 @@ import { useAuth } from "../../../content/AuthContext";
 const Hero = () => {
   // const isAuthenticated = true;
   // const user = { fullName: "Jane", role: "employer" };
-  const {user, isAuthenticated} = useAuth()
+  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const stats = [
@@ -26,11 +26,11 @@ const Hero = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight pt-10"
+            className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight pt-10"
           >
-            Find Your Dream Job or{" "}
+            Smart Hiring. Better Careers.{" "}
             <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mt-16">
-              Perfect Hire
+              One Platform for Jobs and Talent
             </span>
           </motion.h1>
 
@@ -41,9 +41,9 @@ const Hero = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-xl md:text-xl text-gray-600 mb-12 max-2xl mx-auto leading-relaxed"
           >
-            Explore thousands of job listings and connect with top innovative
-            companies. Your next career move or perfect candidate is just one
-            click away.
+            Browse curated job listings and connect with employers and
+            professionals across multiple industries. Built to support long-term
+            career and business growth.
           </motion.p>
 
           {/* CTA Buttons */}
@@ -97,12 +97,13 @@ const Hero = () => {
               >
                 <div className="w-12 h-12 bg-gradient-to-r from-blue-100 to-purple-100  rounded-xl flex items-center justify-center mb-2">
                   <stat.icons className="w-6 h-6 text-blue-600" />
-                   </div>
-                  <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-                  <div className="text-sm text-gray-600 font-medium">
-                    {stat.label}
-                  </div>
-               
+                </div>
+                <div className="text-2xl font-bold text-gray-900">
+                  {stat.value}
+                </div>
+                <div className="text-sm text-gray-600 font-medium">
+                  {stat.label}
+                </div>
               </motion.div>
             ))}
           </motion.div>
