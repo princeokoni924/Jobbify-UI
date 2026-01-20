@@ -5,13 +5,50 @@ import {
   Users,
   Building2,
   Clock,
+  TrendingUp,
+  Wifi,
+  Briefcase
 } from "lucide-react";
-import { JOB_CATEGORIES, JOB_TYPES } from "../../pages/utils/data";
+import { JOB_CATEGORIES, JOB_TYPES, CURRENCIES, WORK_MODE, PAYMENT_PERIOD, EXPERIENCE_LEVEL } from "../../pages/utils/data";
 import { useAuth } from "../../content/AuthContext";
 
+
 const JobPostingPreview = ({ formData, setIsPreview }) => {
+  const getCurrencyInfo =()=>{
+  const currency = CURRENCIES.find(c=>c.value === formData.salaryCurrency);
+  return currency || {value: "NGN", label:"₦ NGN (Nigerian Naira)", symbol:"₦ "};
+};
+
+const currencyInfo = getCurrencyInfo();
+
+const getPaymentPeriodLabel = ()=>{
+  const period = PAYMENT_PERIOD.find(p=>p.value === formData.paymentPeriod);
+  return period ? period.label :"Monthly";
+}
+
+const getWorkModeLabel =()=>{
+  const work_mode = WORK_MODE.find(workMode=>workMode.value === formData.workMode);
+  return work_mode ? work_mode.label :"On-site";
+};
+
+const getExperienceLevel = ()=>{
+  const experience = EXPERIENCE_LEVEL.find(e=>e.value ===formData.experienceLevel);
+  return experience ? experience.label :"Mid level";
+}
+
+// format salary for display
+const format_salary = ()=>{
+  if(!formData.salaryMin || !formData.salaryMax){
+    return "Compitative Salary"
+  }
+
+  const min = parseInt(formData.salaryMin).toLocaleString();
+  const max = parseInt(formData.salaryMax).toLocaleString();
+  const period = getPaymentPeriodLabel();
+  return `${currencyInfo.symbol} ${min} - ${currencyInfo.symbol} ${max} per ${period}`
+}
   const { user } = useAuth();
-  const currencies = [{ value: "usd" }, { label: "$" }];
+ //const currencies = [{ value: "usd" }, { label: "$" }];
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/20 lg:px-8 py-8 px-4 sm:px-6">
       <div className="max-w-4xl mx-auto">
@@ -75,7 +112,7 @@ const JobPostingPreview = ({ formData, setIsPreview }) => {
                   )}
                 </div>
 
-                {/* Tags */}
+                {/* Catgory Tags */}
                 <div className="flex flex-wrap gap-3 mt-6 md:mt-0">
                   <span className="px-4 py-2 bg-blue-50 text-sm text-blue-600 font-semibold rounded-full border border-blue-200">
                     {
@@ -83,10 +120,26 @@ const JobPostingPreview = ({ formData, setIsPreview }) => {
                         ?.label
                     }
                   </span>
-
+                    {/* Job-tag */}
                   <span className="px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 text-blue-600 font-semibold rounded-full border border-blue-200">
                     {JOB_TYPES.find((t) => t.value === formData.jobType)?.label}
                   </span>
+
+                    {/* Work Mode Tag */}
+                  <span className="px-4 py-2 bg-green-50 text-green-600 font-semibold text-sm rounded-full border border-green-200 flex items-center gap-2">
+                    <Wifi className="w-4 h-4" />
+                    {getWorkModeLabel()}
+                  </span>
+
+                  {/* Experience level tag */}
+                  <span
+                  className="px-4 py-2 bg-orange-50 text-orange-600 font-semibold text-sm rounded-full border border-orange-200 flex items-center gap-2"
+                  >
+                   <Wifi className="h-4 w-4"/> 
+                    {getExperienceLevel()}</span>
+
+
+
                   <div
                     className="flex items-center space-x-1 px-4 py-2 gap-3 text-sm
                    bg-gray-50 text-gray-700 
@@ -113,24 +166,17 @@ const JobPostingPreview = ({ formData, setIsPreview }) => {
                       </div>
                       <div>
                         <h3 className="text-sm font-semibold text-gray-900 mb-1 ">
-                          Compansation
+                          {/* Compansation */}
                         </h3>
                         <div className="text-sm md:text-lg font-bold text-gray-900 ">
-                          {
-                            currencies.find(
-                              (c) => c.value === formData.currency
-                            )?.label
-                          }
-                          {formData.salaryMin.toLocaleString()}-{" "}
-                          {
-                            currencies.find(
-                              (c) => c.value === formData.currency
-                            )?.label
-                          }
-                          {formData.salaryMax.toLocaleString()}
+                          {format_salary()}
+                          {/* {formData.salaryMax.toLocaleString()}
                           <span className="text-sm md:text-lg text-gray-600 font-normal ml-2">
                             Per Month
-                          </span>
+                          </span> */}
+                        </div>
+                        <div className="text-xs text-gray-600 mt-1">
+                          Currency: {currencyInfo.label.split('(')[1]?.replace(')', '') || currencyInfo.value}
                         </div>
                       </div>
                     </div>
@@ -171,6 +217,62 @@ const JobPostingPreview = ({ formData, setIsPreview }) => {
                   </div>
                 </div>
               </div>
+                
+
+                 {/* Additional Job Details */}
+              <div className="bg-white border border-gray-200 rounded-xl p-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Job Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-blue-50 rounded-lg">
+                      <Briefcase className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Job Type</p>
+                      <p className="text-sm font-semibold text-gray-900">
+                        {JOB_TYPES.find((t) => t.value === formData.jobType)?.label || "Not specified"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-green-50 rounded-lg">
+                      <Wifi className="w-5 h-5 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Work Mode</p>
+                      <p className="text-sm font-semibold text-gray-900">
+                        {getWorkModeLabel()}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-orange-50 rounded-lg">
+                      <TrendingUp className="w-5 h-5 text-orange-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Experience Level</p>
+                      <p className="text-sm font-semibold text-gray-900">
+                        {getExperienceLevel()}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-purple-50 rounded-lg">
+                      <Clock className="w-5 h-5 text-purple-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Payment Period</p>
+                      <p className="text-sm font-semibold text-gray-900">
+                        {getPaymentPeriodLabel()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>

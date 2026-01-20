@@ -27,12 +27,11 @@ const InputField = ({
           </div>
         )}
         <input
-        autoComplete="true"
-        autoSave="true"
+        autoComplete="on"
         id={id}
         type={type}
         placeholder={placeholder}
-        value={value}
+        value={value ?? ""}
         onChange={onChange}
         disabled={disabled}
         className={`w-full ${

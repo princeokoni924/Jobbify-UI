@@ -83,7 +83,7 @@ const JobSeekerDashboard = () => {
       // Handle different response formats
       const jobData = Array.isArray(response.data)
         ? response.data
-        : response.data?.jobs || [];
+        : response.data?.data?.jobs || response.data?.jobs || [];
 
       setJobs(jobData);
     } catch (err) {
@@ -529,9 +529,3 @@ MobileFiltersOverlay.propTypes = {
 };
 
 export default JobSeekerDashboard;
-
-
-
-
-
-

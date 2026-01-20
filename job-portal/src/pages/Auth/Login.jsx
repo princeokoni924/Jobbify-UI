@@ -15,7 +15,7 @@ import axiosInstance from "../utils/axiosInstance";
 import { API_PATHS } from "../utils/apiPath";
 import { useAuth } from "../../content/AuthContext";
 const Login = () => {
-  const {login} = useAuth()
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -69,8 +69,10 @@ const Login = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!validateForm()) return;
-    setFormState((prev) => ({ ...prev, loading: true }));
-
+    setFormState((prev) => ({
+      ...prev,
+      loading: true,
+    }));
     try {
       // login api integration
       const response = await axiosInstance.post(API_PATHS.AUTH.LOGIN, {
@@ -78,41 +80,101 @@ const Login = () => {
         password: formData.password,
         rememberMe: formData.rememberMe,
       });
-      setFormData((prev) => ({
+      //console.log("Full response structure:", JSON.stringify(response.data, null, 2));
+      
+      // destructuring from nested data
+      const { user, accessToken } = response.data.data;
+      const { role } = user;
+      if (!user || !accessToken) {
+        throw new Error("Invalid response: missing user data or access token");
+      }
+      // console.log("Login successful:", {
+      //   userId: user._id,
+      //   email: user.email,
+      //   role,
+      //   hasToken: !!accessToken,
+      // });
+      if (accessToken) {
+        login(user, accessToken);
+      }
+      
+      // Update success state
+      setFormState((prev) => ({
         ...prev,
         loading: false,
         success: true,
         error: {},
       }));
-      const { token, role, user } = response.data;
-      if (token) {
-        login(response.data, token);
-        // redirect base on role
-        setTimeout(() => {
-          // setFormState((prev) => ({ ...prev, success: true, loading: false }));
-          window.location.href =
-            role === "employer" ? "/employer-dashboard" : "/find-jobs";
-        }, 2000);
-      }
 
-      // redirect base on user role
+      // Redirect based on role
       setTimeout(() => {
-        const redirectPath =
-          user.role === "employer" ? "/employer-dashboard" : "/find-jobs";
-        window.location.href = redirectPath;
-      }, 1500);
-    } catch (error) {
+        window.location.href =
+          role === "employer" ? "/employer-dashboard" : "find-jobs";
+      }, 2000);
+    } catch (err) {
+      // console.error("Login error:", err);
+      // console.error("Error response:", err.response?.data);
+      // console.error("Error message:", err.message);
       setFormState((prev) => ({
         ...prev,
         loading: false,
         error: {
           submit:
-            error.response?.data?.message ||
-            "Login fail, please check your credentials and try again",
+            err.response?.data?.error?.message ||
+            "Login failed, please check your credentials and try again",
         },
       }));
     }
   };
+
+  //old code
+  // const handleSubmit = async (event) => {
+  //   event.preventDefault();
+  //   if (!validateForm()) return;
+  //   setFormState((prev) => ({ ...prev, loading: true }));
+
+  //   try {
+  //     // login api integration
+  //     const response = await axiosInstance.post(API_PATHS.AUTH.LOGIN, {
+  //       email: formData.email,
+  //       password: formData.password,
+  //       rememberMe: formData.rememberMe,
+  //     });
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       loading: false,
+  //       success: true,
+  //       error: {},
+  //     }));
+  //     const { token, role, user } = response.data;
+  //     if (token) {
+  //       login(response.data, token);
+  //       // redirect base on role
+  //       setTimeout(() => {
+  //         // setFormState((prev) => ({ ...prev, success: true, loading: false }));
+  //         window.location.href =
+  //           role === "employer" ? "/employer-dashboard" : "/find-jobs";
+  //       }, 2000);
+  //     }
+
+  //     // redirect base on user role
+  //     setTimeout(() => {
+  //       const redirectPath =
+  //         user.role === "employer" ? "/employer-dashboard" : "/find-jobs";
+  //       window.location.href = redirectPath;
+  //     }, 1500);
+  //   } catch (error) {
+  //     setFormState((prev) => ({
+  //       ...prev,
+  //       loading: false,
+  //       error: {
+  //         submit:
+  //           error.response?.data?.message ||
+  //           "Login fail, please check your credentials and try again",
+  //       },
+  //     }));
+  //   }
+  // };
 
   if (formState.success) {
     return (

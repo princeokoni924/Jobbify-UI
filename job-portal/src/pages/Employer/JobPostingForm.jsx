@@ -7,16 +7,20 @@ import {
   Users,
   Eye,
   Send,
+  Wifi,
+  Clock,
+  TrendingUp,
+
 } from "lucide-react";
 import { API_PATHS } from "../utils/apiPath";
 import { useLocation, useNavigate } from "react-router-dom";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import axiosInstance from "../utils/axiosInstance";
-import { JOB_CATEGORIES, JOB_TYPES} from "../utils/data";
+import { JOB_CATEGORIES, JOB_TYPES, CURRENCIES, WORK_MODE,PAYMENT_PERIOD, EXPERIENCE_LEVEL } from "../utils/data";
 import InputField from "../../components/input/InputField";
 import SelectField from "../../components/input/SelectField ";
 import TextareaField from "../../components/input/TextareaField";
-import JobPostingPreview from '../../components/Cards/JobPostingPreview'
+import JobPostingPreview from "../../components/Cards/JobPostingPreview";
 
 import toast from "react-hot-toast";
 const JobPostingForm = () => {
@@ -33,6 +37,10 @@ const JobPostingForm = () => {
     salaryMin: "",
     description: "",
     requirement: "",
+    salaryCurrency: "NGN",
+    workMode:"onsite",
+    experienceLevel:"mid",
+    paymentPeriod:"monthly"
   });
 
   const [errs, setErrs] = useState({});
@@ -59,9 +67,9 @@ const JobPostingForm = () => {
   const handSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validateForm(formData);
-    if(Object.keys(validationErrors).length>0){
-   setErrs(validationErrors);
-   return;
+    if (Object.keys(validationErrors).length > 0) {
+      setErrs(validationErrors);
+      return;
     }
     setIsSubmitting(true);
 
@@ -73,41 +81,56 @@ const JobPostingForm = () => {
       category: formData.category,
       salaryMax: formData.salaryMax,
       salaryMin: formData.salaryMin,
-      location: formData.location
+      location: formData.location,
+      salaryCurrency: formData.salaryCurrency,
+      workMode: formData.workMode,
+      paymentPeriod: formData.paymentPeriod,
+      experienceLevel: formData.experienceLevel
     };
-    try{
-      const response = jobId ? await axiosInstance.put(API_PATHS.JOBS.UPDATE_JOB(jobId), jobPayload)
-      : await axiosInstance.post(API_PATHS.JOBS.POST_JOBS, jobPayload);
+    try {
+      const response = jobId
+        ? await axiosInstance.put(API_PATHS.JOBS.UPDATE_JOB(jobId), jobPayload)
+        : await axiosInstance.post(API_PATHS.JOBS.POST_JOBS, jobPayload);
 
-      if(response.status===200 || response.status===201){
+      if (response.status === 200 || response.status === 201) {
         toast.success(
-          jobId ? "Job updated successfully!":"Job Posted successfuuly!"
+          jobId ? "Job updated successfully!" : "Job Posted successfuuly!",
         );
         setFormData({
           jobId: "",
           jobTitle: "",
-          location:"",
-          category:"",
+          location: "",
+          category: "",
           requirement: "",
-          description:"",
-          salaryMin:"",
-          salaryMax:"",
-          jobType:''
+          description: "",
+          salaryMin: "",
+          salaryMax: "",
+          salaryCurrency: "NGN",
+          jobType: "",
+          workMode:"onsite",
+          paymentPeriod:"monthly",
+          experienceLevel:"mid"
         });
         navigate("/employer-dashboard");
         return;
       }
       console.error("Unexpected error occur", response.error);
-      toast.error("Something went wrong, please try again")
-    }catch(err){
-      if(err.response?.data?.message){
-        console.error("API Error", err.response.data.message);
+      //toast.error("Something went wrong, please try again")
+    } catch (err) {
+      if (err.response?.data?.message) {
+        //console.error("API Error", err.response.data.message);
         toast.error(err.response.data.message);
-      }else{
-        console.error("Unexpcted error occur", err);
-        toast.error("Fail to post job. Please try again, Thank you.")
+      } else if (err.response?.data?.error) {
+        toast.error(err.response.data.error);
+        //console.error();
+        //"Unexpcted error occur", err
+        toast.error("Fail to post job. Please try again, Thank you.");
+      } else if (err.message) {
+        toast.error(err.message);
+      } else {
+        toast.error("Failed to post job. Please try again.");
       }
-    }finally{
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -115,35 +138,45 @@ const JobPostingForm = () => {
   // form validation helpler
   const validateForm = (formData) => {
     const error = {};
-    if(!(formData.jobTitle ||"").trim()){
-      error.jobTitle ="Job title required!"
+    if (!(formData.jobTitle || "").trim()) {
+      error.jobTitle = "Job title required!";
     }
- if(!formData.category){
-  error.category ="Kindly select job category because its required!"
- }
+    if (!formData.category) {
+      error.category = "Kindly select job category because its required!";
+    }
 
- if(!formData.location){
-  error.location = "Job location required!"
- }
+    if (!formData.location) {
+      error.location = "Job location required!";
+    }
 
- if(!formData.salaryMin || !formData.salaryMax){
-  error.salaryMax = "Both minimum and maximum salary are required!"
- }else if(parseInt(formData.salaryMin)>= parseInt(formData.salaryMax)){
-  error.salary = "Maximun salary must be greater than minimun salary!"
- }
+    if (!formData.salaryMin || !formData.salaryMax) {
+      error.salaryMax = "Both minimum and maximum salary are required!";
+    } else if (parseInt(formData.salaryMin) >= parseInt(formData.salaryMax)) {
+      error.salary = "Maximun salary must be greater than minimun salary!";
+    }
 
- 
+    if (!formData.jobType) {
+      error.jobType = "Kindly select job type because its required!";
+    }
 
- if(!formData.jobType){
-  error.jobType = "Kindly select job type because its required!"
- }
+    if (!formData.requirement || !formData.requirement.trim()) {
+      error.requirement = "Job requirement are required!";
+    }
+    if (!(formData.description || "").trim()) {
+      error.description = "Job description required!";
+    }
 
- if(!formData.requirement || !formData.requirement.trim()){
-  error.requirement = "Job requirement are required!"
- }
- if(!(formData.description || "").trim()){
-  error.description="Job description required!"
- }
+    if(!formData.workMode){
+      error.workMode = "Select work mode"
+    }
+
+    if(!formData.experienceLevel){
+      error.experienceLevel = "Select experience level"
+    }
+     if(!formData.paymentPeriod){
+      error.paymentPeriod="Select payment period"
+     }
+
     return error;
   };
 
@@ -153,46 +186,56 @@ const JobPostingForm = () => {
     return Object.keys(validationErrs).length === 0;
   };
 
-// fetch job data for editing
-useEffect(()=>{
-  const fetchJobDetailsForEdit = async()=>{
-    if(jobId){
-      try{
-        const res = await axiosInstance.get(API_PATHS.JOBS.GET_JOB_BY_ID(jobId));
-        const jobData = res.data;
-        console.log("JOB FROM API", jobData)
-        if(jobData){
-          setFormData({
-            jobType: jobData.type ,
-            jobTitle: jobData.title ,
-            location: jobData.location, 
-            category: jobData.category ,
-            requirement: jobData.requirements, 
-            description: jobData.description ,
-            salaryMin: jobData.salaryMin ,
-            salaryMax: jobData.salaryMax ,
-            // jobId: jobData.jobId
-          })
-        }
-      }catch(err){
-        console.error("Error fetching job detail")
-        if(err.res){
-          console.error("API Error:");
-        }
+  // fetch job data for editing
+  useEffect(() => {
+    const fetchJobDetailsForEdit = async () => {
+      if (!jobId) {
+        return;
       }
+      try {
+          const res = await axiosInstance.get(
+            API_PATHS.JOBS.GET_JOB_BY_ID(jobId),
+          );
+          const jobData = res.data?.data;
+          
+          if (jobData) {
+            setFormData(prev =>({
+              ...prev,
+              jobType: jobData.type ?? "",
+              jobTitle: jobData.title ?? "",
+              location: jobData.location ?? "",
+              category: jobData.category ?? "",
+              requirement: jobData.requirements ?? "",
+              description: jobData.description ?? "",
+              salaryMin: jobData.salaryMin ?? "",
+              salaryMax: jobData.salaryMax ?? "",
+              salaryCurrency: jobData.salaryCurrency ??  "NGN",
+              workMode: jobData.workMode ??  "onsite",
+              experienceLevel: jobData.experienceLevel ??  "mid",
+              paymentPeriod: jobData.paymentPeriod ?? "monthly"
+            }));
+          }
+        } catch (err) {
+          if (err.res) {
+            console.error("API Error:");
+          }
+        }
     };
-  };
-  fetchJobDetailsForEdit();
-   return ()=>{};
-}, [])
+    fetchJobDetailsForEdit();
+    return () => {};
+  }, [jobId]);
 
-  if(isPreview){
+  // get currency symbol
+  const displayCurrencySymbol = () => {
+    const currency = CURRENCIES.find(
+      (c) => c.value === formData.salaryCurrency,
+    );
+    return currency ? currency.symbol : "₦";
+  };
+  if (isPreview) {
     return (
       <DashboardLayout activeMenu={"post-job"}>
-        <JobPostingPreview
-        formData={formData}
-        setIsPreview={setIsPreview}
-        />
+        <JobPostingPreview formData={formData} setIsPreview={setIsPreview} />
       </DashboardLayout>
     );
   }
@@ -206,7 +249,6 @@ useEffect(()=>{
           <div className="bg-white shadow-xl rounded-2xl p-6">
             <div className="flex items-center justify-between mb-8">
               <div>
-               
                 <h2 className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
                   Post a New Job
                 </h2>
@@ -293,6 +335,32 @@ useEffect(()=>{
                 />
               </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+               <SelectField
+               label={`Work Mode`}
+               id={`workMode`}
+               placeholder={`select work mode`}
+               value={formData.workMode}
+               onChange={(e)=>handleInputChange("workMode", e.target.value)}
+               option={WORK_MODE}
+               error={errs.workMode}
+               required
+               icon={Wifi}
+               />
+
+
+               <SelectField
+                  label={`Experience Level`}
+                  id={`experienceLevel`}
+                  value={formData.experienceLevel}
+                  onChange={(e) => handleInputChange("experienceLevel", e.target.value)}
+                  placeholder={`Select experience level`}
+                  option={EXPERIENCE_LEVEL}
+                  error={errs.experienceLevel}
+                  icon={TrendingUp}
+                />
+              </div>
+
               {/* Job Description */}
               <TextareaField
                 label={`Job Description`}
@@ -321,16 +389,46 @@ useEffect(()=>{
               />
 
               {/* Salary range */}
-              <div className="">
-                <label className="">
+              <div className="space-y-3">
+                <label className="text-sm font-medium text-gray-700">
                   Salary Range <span className="text-red-500 ml-1">*</span>
                 </label>
-                {/* Min Salary*/}
-                <div className="grid grid-cols-3 gap-3">
+
+                {/* Currency Selector */}
+                <div className="w-full">
+                  <SelectField
+                    label=""
+                    id="salaryCurrency"
+                    value={formData.salaryCurrency}
+                    onChange={(e) =>
+                      handleInputChange("salaryCurrency", e.target.value)
+                    }
+                    option={CURRENCIES}
+                    placeholder="Select currency"
+                    error={errs.salaryCurrency}
+                    icon={DollarSign}
+                  />
+
+                  <SelectField
+                    label=""
+                    id="paymentPeriod"
+                    value={formData.paymentPeriod}
+                    onChange={(e) => handleInputChange("paymentPeriod", e.target.value)}
+                    option={PAYMENT_PERIOD}
+                    placeholder="Select payment period"
+                    error={errs.paymentPeriod}
+                    icon={Clock}
+                  />
+                </div>
+
+                {/* Min and Max Salary Inputs */}
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Min Salary */}
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                      <DollarSign className="h-5 w-5 text-gray-500" />
-                      {/* <span className="ml-2">(Naira)</span> */}
+                      <span className="text-gray-500 font-medium">
+                        {displayCurrencySymbol()}
+                      </span>
                     </div>
                     <input
                       type="number"
@@ -340,17 +438,18 @@ useEffect(()=>{
                         handleInputChange("salaryMin", e.target.value)
                       }
                       className="w-full pl-10 pr-3 py-2.5 border border-gray-300
-                       rounded-lg text-base focus:outline-none focus:ring-1
-                        focus:ring-blue-500 focus:ring-opacity-20 transition-colors duration-200
-                        focus:border-blue-500"
+         rounded-lg text-base focus:outline-none focus:ring-1
+          focus:ring-blue-500 focus:ring-opacity-20 transition-colors duration-200
+          focus:border-blue-500"
                     />
                   </div>
-                   
-                   {/* Max salary */}
-                     <div className="relative">
+
+                  {/* Max Salary */}
+                  <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                      <DollarSign className="h-5 w-5 text-gray-500" />
-                      {/* <span>(Naira)</span> */}
+                      <span className="text-gray-500 font-medium">
+                        {displayCurrencySymbol()}
+                      </span>
                     </div>
                     <input
                       type="number"
@@ -360,13 +459,20 @@ useEffect(()=>{
                         handleInputChange("salaryMax", e.target.value)
                       }
                       className="w-full pl-10 pr-3 py-2.5 border border-gray-300
-                       rounded-lg text-base focus:outline-none focus:ring-1
-                        focus:ring-blue-500 focus:ring-opacity-20 transition-colors duration-200
-                        focus:border-blue-500"
+         rounded-lg text-base focus:outline-none focus:ring-1
+          focus:ring-blue-500 focus:ring-opacity-20 transition-colors duration-200
+          focus:border-blue-500"
                     />
                   </div>
                 </div>
 
+                {/* Error Messages */}
+                {errs.salaryMax && (
+                  <div className="text-sm text-red-600 font-medium flex items-center space-x-1">
+                    <AlertCircle className="w-4 h-4" />
+                    <span>{errs.salaryMax}</span>
+                  </div>
+                )}
                 {errs.salary && (
                   <div className="text-sm text-red-600 font-medium flex items-center space-x-1">
                     <AlertCircle className="w-4 h-4" />
@@ -395,8 +501,8 @@ useEffect(()=>{
                     </>
                   ) : (
                     <>
-                    <Send className="w-5 h-5 mr-2"/>
-                    Publish Job
+                      <Send className="w-5 h-5 mr-2" />
+                      Publish Job
                     </>
                   )}
                 </button>

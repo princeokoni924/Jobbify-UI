@@ -76,26 +76,32 @@ export const NAVIGATION_MENU = [
 ];
 // Categories and job types
 export const JOB_CATEGORIES = [
-  { value: "software-development", label: "Software Development" },
-  { value: "design", label: "Design" },
-  { value: "marketing", label: "Marketing" },
-  { value: "sales", label: "Sales" },
-  { value: "customer-support", label: "Customer Support" },
-  { value: "human-resources", label: "Human Resources" },
-  { value: "finance", label: "Finance" },
-  { value: "healthcare", label: "Healthcare" },
-  { value: "education", label: "Education" },
-  { value: "engineering", label: "Engineering" },
-  { value: "legal", label: "Legal" },
-  { value: "other", label: "Other" },
+  { value: "Technology", label: "Technology" },
+  { value: "Healthcare", label: "Healthcare" },
+  { value: "Finance", label: "Finance" },
+  { value: "Education", label: "Education" },
+  { value: "Marketing", label: "Marketing" },
+  { value: "Sales", label: "Sales" },
+  { value: "Engineering", label: "Engineering" },
+  { value: "Design", label: "Design" },
+  { value: "Customer Service", label: "Customer Service" },
+  { value: "Human Resources", label: "Human Resources" },
+  { value: "Operations", label: "Operations" },
+  { value: "Legal", label: "Legal" },
+  { value: "Construction", label: "Construction" },
+  { value: "Manufacturing", label: "Manufacturing" },
+  { value: "Retail", label: "Retail" },
+  { value: "Hospitality", label: "Hospitality" },
+  { value: "Software Engineer", label: "Software Engineer" },
+  {value:"software-development", label:"software-development"},
+  { value: "Other", label: "Other" }
 ];
 // Job Types
 export const JOB_TYPES = [
-  { value: "full_time", label: "Full-time" },
-  { value: "part-time", label: "Part-time" },
+  { value: "full_time", label: "Full Time" },
+  { value: "part_time", label: "Part Time" },
   { value: "contract", label: "Contract" },
   { value: "internship", label: "Internship" },
-  // { value: "temporary", label: "Temporary" },
   { value: "freelance", label: "Freelance" },
   { value: "remote", label: "Remote" },
 ];
@@ -106,4 +112,35 @@ export const SALARY_RANGES = [
   "$30,000 - $50,000",
   "$50,000 - $70,000",
   "More than $70,000",
+]
+
+export const CURRENCIES = [
+  { value: "NGN", label: "₦ NGN (Nigerian Naira)", symbol: "₦" },
+  { value: "USD", label: "$ USD (US Dollar)", symbol: "$" },
+  { value: "EUR", label: "€ EUR (Euro)", symbol: "€" },
+  { value: "GBP", label: "£ GBP (British Pound)", symbol: "£" },
+  { value: "CAD", label: "$ CAD (Canadian Dollar)", symbol: "C$" },
+  { value: "AUD", label: "$ AUD (Australian Dollar)", symbol: "A$" },
+  { value: "INR", label: "₹ INR (Indian Rupee)", symbol: "₹" }
+];
+
+export const WORK_MODE=[
+  {value:"remote", label:"Remote"},
+  {value:"hybrid", label:'Hybrid'},
+  {value:"onsite", label:"On-Site"}
+];
+
+export const PAYMENT_PERIOD=[
+  {value:"hourly", label:"Hourly"},
+  {value:"monthly", label:"Monthly"},
+  {value:"yearly", label:"Yearly"}
+];
+
+export const EXPERIENCE_LEVEL=[
+  {value:'entry', label:"Entry level"},
+  {value:"junior", label:"Junior level"},
+  {value:"mid", label:"Mid level"},
+  {value:"senior", label:"Senior level"},
+  {value:"lead", label:"lead"},
+  {value:"executive", label:"Executive"}
 ]

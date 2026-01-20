@@ -5,14 +5,13 @@ import Loading from "../components/LoaderSpinner";
 const ProtectedRoute = ({ requiredRole }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
+  //console.log("2. isAuthenticated:", isAuthenticated);
   if (loading) {
     return <Loading />;
   }
-
   if (!user) {
     return <Navigate to={`/login`} replace state={{ from: location }} />;
   }
-
   // Role restriction
   if (requiredRole && user.role !== requiredRole) {
     return <Navigate to={`/unauthorized`} replace />;
