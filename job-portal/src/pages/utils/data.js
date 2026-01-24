@@ -93,9 +93,13 @@ export const JOB_CATEGORIES = [
   { value: "Retail", label: "Retail" },
   { value: "Hospitality", label: "Hospitality" },
   { value: "Software Engineer", label: "Software Engineer" },
-  {value:"software-development", label:"software-development"},
+  {value:"Data Science", label:"Data Science"},
+  {value:"Product Management", label:"Product Management"},
+  {value:"Project Management", label:"Project Management"},
+  {value:"Administration", label:"Administration"},
   { value: "Other", label: "Other" }
 ];
+
 // Job Types
 export const JOB_TYPES = [
   { value: "full_time", label: "Full Time" },
@@ -130,7 +134,7 @@ export const WORK_MODE=[
   {value:"onsite", label:"On-Site"}
 ];
 
-export const PAYMENT_PERIOD=[
+export const SAlARY_PERIOD=[
   {value:"hourly", label:"Hourly"},
   {value:"monthly", label:"Monthly"},
   {value:"yearly", label:"Yearly"}

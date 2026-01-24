@@ -84,7 +84,6 @@ const JobSeekerDashboard = () => {
       const jobData = Array.isArray(response.data)
         ? response.data
         : response.data?.data?.jobs || response.data?.jobs || [];
-
       setJobs(jobData);
     } catch (err) {
       console.error("Error fetching jobs:", err);
@@ -217,7 +216,7 @@ const JobSeekerDashboard = () => {
     }
   }, [navigate]);
 
-  // Memoized values
+  // Memorized values
   const hasActiveFilters = useMemo(() => {
     return Object.entries(filters).some(([key, value]) => {
       if (key === "remoteOnly") return value === true;
@@ -261,7 +260,7 @@ const JobSeekerDashboard = () => {
             </div>
           )}
 
-          <div className="flex gap-6 lg:gap-8">
+          <div className="flex gap-6 lg:gap-8 mt-5">
             {/* Desktop Sidebar Filter */}
             <aside className="hidden lg:block w-80 flex-shrink-0">
               <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-white/20 p-6 sticky top-24">

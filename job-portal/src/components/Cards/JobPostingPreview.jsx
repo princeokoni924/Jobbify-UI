@@ -7,48 +7,66 @@ import {
   Clock,
   TrendingUp,
   Wifi,
-  Briefcase
+  Briefcase,
 } from "lucide-react";
-import { JOB_CATEGORIES, JOB_TYPES, CURRENCIES, WORK_MODE, PAYMENT_PERIOD, EXPERIENCE_LEVEL } from "../../pages/utils/data";
+import {
+  JOB_CATEGORIES,
+  JOB_TYPES,
+  CURRENCIES,
+  WORK_MODE,
+  SAlARY_PERIOD,
+  EXPERIENCE_LEVEL,
+} from "../../pages/utils/data";
 import { useAuth } from "../../content/AuthContext";
 
-
 const JobPostingPreview = ({ formData, setIsPreview }) => {
-  const getCurrencyInfo =()=>{
-  const currency = CURRENCIES.find(c=>c.value === formData.salaryCurrency);
-  return currency || {value: "NGN", label:"₦ NGN (Nigerian Naira)", symbol:"₦ "};
-};
+  const getCurrencyInfo = () => {
+    const currency = CURRENCIES.find(
+      (c) => c.value === formData.salaryCurrency,
+    );
+    return (
+      currency || {
+        value: "NGN",
+        label: "₦ NGN (Nigerian Naira)",
+        symbol: "₦ ",
+      }
+    );
+  };
 
-const currencyInfo = getCurrencyInfo();
+  const currencyInfo = getCurrencyInfo();
 
-const getPaymentPeriodLabel = ()=>{
-  const period = PAYMENT_PERIOD.find(p=>p.value === formData.paymentPeriod);
-  return period ? period.label :"Monthly";
-}
+  const getPaymentPeriodLabel = () => {
+    const period = SAlARY_PERIOD.find((p) => p.value === formData.salaryPeriod);
+    return period ? period.label : "Monthly";
+  };
 
-const getWorkModeLabel =()=>{
-  const work_mode = WORK_MODE.find(workMode=>workMode.value === formData.workMode);
-  return work_mode ? work_mode.label :"On-site";
-};
+  const getWorkModeLabel = () => {
+    const work_mode = WORK_MODE.find(
+      (workMode) => workMode.value === formData.workMode,
+    );
+    return work_mode ? work_mode.label : "On-site";
+  };
 
-const getExperienceLevel = ()=>{
-  const experience = EXPERIENCE_LEVEL.find(e=>e.value ===formData.experienceLevel);
-  return experience ? experience.label :"Mid level";
-}
+  const getExperienceLevel = () => {
+    const experience = EXPERIENCE_LEVEL.find(
+      (e) => e.value === formData.experienceLevel,
+    );
+    return experience ? experience.label : "Mid level";
+  };
 
-// format salary for display
-const format_salary = ()=>{
-  if(!formData.salaryMin || !formData.salaryMax){
-    return "Compitative Salary"
-  }
+  // format salary for display
+  const format_salary = () => {
+    if (!formData.salaryMin || !formData.salaryMax) {
+      return "Compitative Salary";
+    }
 
-  const min = parseInt(formData.salaryMin).toLocaleString();
-  const max = parseInt(formData.salaryMax).toLocaleString();
-  const period = getPaymentPeriodLabel();
-  return `${currencyInfo.symbol} ${min} - ${currencyInfo.symbol} ${max} per ${period}`
-}
+    const min = parseInt(formData.salaryMin).toLocaleString();
+    const max = parseInt(formData.salaryMax).toLocaleString();
+    const period = getPaymentPeriodLabel();
+    return `${currencyInfo.symbol} ${min} - ${currencyInfo.symbol} ${max} per ${period}`;
+  };
   const { user } = useAuth();
- //const currencies = [{ value: "usd" }, { label: "$" }];
+  //const currencies = [{ value: "usd" }, { label: "$" }];
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/20 lg:px-8 py-8 px-4 sm:px-6">
       <div className="max-w-4xl mx-auto">
@@ -120,25 +138,22 @@ const format_salary = ()=>{
                         ?.label
                     }
                   </span>
-                    {/* Job-tag */}
+                  {/* Job-tag */}
                   <span className="px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 text-blue-600 font-semibold rounded-full border border-blue-200">
                     {JOB_TYPES.find((t) => t.value === formData.jobType)?.label}
                   </span>
 
-                    {/* Work Mode Tag */}
+                  {/* Work Mode Tag */}
                   <span className="px-4 py-2 bg-green-50 text-green-600 font-semibold text-sm rounded-full border border-green-200 flex items-center gap-2">
                     <Wifi className="w-4 h-4" />
                     {getWorkModeLabel()}
                   </span>
 
                   {/* Experience level tag */}
-                  <span
-                  className="px-4 py-2 bg-orange-50 text-orange-600 font-semibold text-sm rounded-full border border-orange-200 flex items-center gap-2"
-                  >
-                   <Wifi className="h-4 w-4"/> 
-                    {getExperienceLevel()}</span>
-
-
+                  <span className="px-4 py-2 bg-orange-50 text-orange-600 font-semibold text-sm rounded-full border border-orange-200 flex items-center gap-2">
+                    <Wifi className="h-4 w-4" />
+                    {getExperienceLevel()}
+                  </span>
 
                   <div
                     className="flex items-center space-x-1 px-4 py-2 gap-3 text-sm
@@ -176,7 +191,9 @@ const format_salary = ()=>{
                           </span> */}
                         </div>
                         <div className="text-xs text-gray-600 mt-1">
-                          Currency: {currencyInfo.label.split('(')[1]?.replace(')', '') || currencyInfo.value}
+                          Currency:{" "}
+                          {currencyInfo.label.split("(")[1]?.replace(")", "") ||
+                            currencyInfo.value}
                         </div>
                       </div>
                     </div>
@@ -186,7 +203,7 @@ const format_salary = ()=>{
                    px-3 py-1 rounded-full"
                     >
                       <Users className="w-4 h-4" />
-                      <span>Competitive</span>
+                      {/* <span>Competitive</span> */}
                     </div>
                   </div>
                 </div>
@@ -209,7 +226,9 @@ const format_salary = ()=>{
               <div className="space-y-4">
                 <h3 className="text-2xl font-bold text-gray-900 flex items-center space-x-3">
                   <div className="w-1 h-8 bg-gradient-to-b from-purple-500 to-pink-600 rounded-full"></div>
-                  <span className="text-base md:text-lg">What We're Looking For</span>
+                  <span className="text-base md:text-lg">
+                    What We're Looking For
+                  </span>
                 </h3>
                 <div className="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-100 rounded-xl p-6">
                   <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
@@ -217,11 +236,27 @@ const format_salary = ()=>{
                   </div>
                 </div>
               </div>
-                
 
-                 {/* Additional Job Details */}
+              {/* responsibilities */}
+              <div className="space-y-4">
+                <h3 className="text-2xl font-bold text-gray-900 flext items-center space-x-3">
+                  <div className="w-1 h-8 bg-gradient-to-b from-blue-700 to-purple-700 rounded-full"></div>
+                  <span className="text-base md:text-lg">
+                    Your responsibility
+                  </span>
+                </h3>
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-100 rounded-xl p-6 ">
+                  <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+                    {formData.responsibilities}
+                  </div>
+                </div>
+              </div>
+
+              {/* Additional Job Details */}
               <div className="bg-white border border-gray-200 rounded-xl p-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Job Details</h3>
+                <h3 className="text-lg font-bold text-gray-900 mb-4">
+                  Job Details
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex items-center space-x-3">
                     <div className="p-2 bg-blue-50 rounded-lg">
@@ -230,7 +265,8 @@ const format_salary = ()=>{
                     <div>
                       <p className="text-xs text-gray-500">Job Type</p>
                       <p className="text-sm font-semibold text-gray-900">
-                        {JOB_TYPES.find((t) => t.value === formData.jobType)?.label || "Not specified"}
+                        {JOB_TYPES.find((t) => t.value === formData.jobType)
+                          ?.label || "Not specified"}
                       </p>
                     </div>
                   </div>
@@ -272,7 +308,6 @@ const format_salary = ()=>{
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
         </div>

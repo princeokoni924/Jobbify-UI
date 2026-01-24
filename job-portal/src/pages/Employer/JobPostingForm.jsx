@@ -10,13 +10,23 @@ import {
   Wifi,
   Clock,
   TrendingUp,
-
+  Plus,
+  X,
+  AlertTriangle,
+  Calendar,
 } from "lucide-react";
 import { API_PATHS } from "../utils/apiPath";
 import { useLocation, useNavigate } from "react-router-dom";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import axiosInstance from "../utils/axiosInstance";
-import { JOB_CATEGORIES, JOB_TYPES, CURRENCIES, WORK_MODE,PAYMENT_PERIOD, EXPERIENCE_LEVEL } from "../utils/data";
+import {
+  JOB_CATEGORIES,
+  JOB_TYPES,
+  CURRENCIES,
+  WORK_MODE,
+  SAlARY_PERIOD,
+  EXPERIENCE_LEVEL,
+} from "../utils/data";
 import InputField from "../../components/input/InputField";
 import SelectField from "../../components/input/SelectField ";
 import TextareaField from "../../components/input/TextareaField";
@@ -29,6 +39,7 @@ const JobPostingForm = () => {
   const jobId = location.state?.jobId || null;
 
   const [formData, setFormData] = useState({
+    responsibilities: "",
     location: "",
     category: "",
     jobTitle: "",
@@ -38,14 +49,21 @@ const JobPostingForm = () => {
     description: "",
     requirement: "",
     salaryCurrency: "NGN",
-    workMode:"onsite",
-    experienceLevel:"mid",
-    paymentPeriod:"monthly"
+    workMode: "onsite",
+    experienceLevel: "mid",
+    salaryPeriod: "monthly",
+    skills: [],
+    benefits: [],
+    applicationDeadline: "",
+    expiryAt: "",
+    isFeatured: false,
   });
 
   const [errs, setErrs] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
+  const [skillInput, setSkillInput] = useState("");
+  const [benefitInput, setBenefitInput] = useState("");
 
   // validate input method
   const handleInputChange = (field, value) => {
@@ -62,7 +80,58 @@ const JobPostingForm = () => {
       }));
     }
   };
+  // handle add skill
+  const handleAddSkill = () => {
+    if (skillInput.trim() && !formData.skills.includes(skillInput.trim())) {
+      setFormData((prev) => ({
+        ...prev,
+        skills: [...prev.skills, skillInput.trim()],
+      }));
+      setSkillInput("");
+    }
+  };
 
+  // remove skill
+  const handleRemoveSkill = (skillToRemove) => {
+    setFormData((prev) => ({
+      ...prev,
+      skills: prev.skills.filter((skill) => skill !== skillToRemove),
+    }));
+  };
+
+  // handle add benefit
+  const handleAddBenefit = () => {
+    if (
+      benefitInput.trim() &&
+      !formData.benefits.includes(benefitInput.trim())
+    ) {
+      setFormData((prev) => ({
+        ...prev,
+        benefits: [...prev.benefits, benefitInput.trim()],
+      }));
+      setBenefitInput("");
+    }
+
+    if (errs.benefits) {
+      setErrs((prev) => ({
+        ...prev,
+        benefits: "",
+      }));
+    } else if (errs.benefitInput.trim().length > 150) {
+      setErrs((prev) => ({
+        ...prev,
+        benefitInput: "Benefit cannot exceed 150 characters",
+      }));
+    }
+  };
+
+  // remove benefit
+  const handleRemoveBenefit = (benefitToRemove) => {
+    setFormData((prev) => ({
+      ...prev,
+      benefits: prev.benefits.filter((benefit) => benefit !== benefitToRemove),
+    }));
+  };
   // submit method
   const handSubmit = async (e) => {
     e.preventDefault();
@@ -84,8 +153,14 @@ const JobPostingForm = () => {
       location: formData.location,
       salaryCurrency: formData.salaryCurrency,
       workMode: formData.workMode,
-      paymentPeriod: formData.paymentPeriod,
-      experienceLevel: formData.experienceLevel
+      salaryPeriod: formData.salaryPeriod,
+      experienceLevel: formData.experienceLevel,
+      responsibilities: formData.responsibilities,
+      skills: formData.skills,
+      benefits: formData.benefits,
+      applicationDeadline: formData.applicationDeadline || undefined,
+      expiryAt: formData.expiryAt || undefined,
+      isFeatured: formData.isFeatured,
     };
     try {
       const response = jobId
@@ -98,6 +173,7 @@ const JobPostingForm = () => {
         );
         setFormData({
           jobId: "",
+          responsibilities: "",
           jobTitle: "",
           location: "",
           category: "",
@@ -107,9 +183,9 @@ const JobPostingForm = () => {
           salaryMax: "",
           salaryCurrency: "NGN",
           jobType: "",
-          workMode:"onsite",
-          paymentPeriod:"monthly",
-          experienceLevel:"mid"
+          workMode: "onsite",
+          salaryPeriod: "monthly",
+          experienceLevel: "mid",
         });
         navigate("/employer-dashboard");
         return;
@@ -138,7 +214,7 @@ const JobPostingForm = () => {
   // form validation helpler
   const validateForm = (formData) => {
     const error = {};
-    if (!(formData.jobTitle || "").trim()) {
+    if (!formData.jobTitle || "".trim()) {
       error.jobTitle = "Job title required!";
     }
     if (!formData.category) {
@@ -166,17 +242,36 @@ const JobPostingForm = () => {
       error.description = "Job description required!";
     }
 
-    if(!formData.workMode){
-      error.workMode = "Select work mode"
+    if (!formData.workMode) {
+      error.workMode = "Select work mode";
     }
 
-    if(!formData.experienceLevel){
-      error.experienceLevel = "Select experience level"
+    if (!formData.experienceLevel) {
+      error.experienceLevel = "Select experience level";
     }
-     if(!formData.paymentPeriod){
-      error.paymentPeriod="Select payment period"
-     }
+    if (!formData.salaryPeriod) {
+      error.salaryPeriod = "Select payment period";
+    }
+    if (!formData.responsibilities || !formData.responsibilities.trim()) {
+      error.responsibilities = "responsibilities required!";
+    }
 
+    // validate application deadline
+    if (formData.applicationDeadline) {
+      const deadLineDate = new Date(formData.applicationDeadline);
+      if (deadLineDate <= new Date()) {
+        error.applicationDeadline =
+          "Application deadline must be a future date";
+      }
+    }
+
+    // validate expiration date
+    if (formData.expiryAt) {
+      const expiryDate = new Date(formData.expiryAt);
+      if (expiryDate <= new Date()) {
+        error.expiryAt = "Expiry date must be a future date";
+      }
+    }
     return error;
   };
 
@@ -193,33 +288,45 @@ const JobPostingForm = () => {
         return;
       }
       try {
-          const res = await axiosInstance.get(
-            API_PATHS.JOBS.GET_JOB_BY_ID(jobId),
-          );
-          const jobData = res.data?.data;
-          
-          if (jobData) {
-            setFormData(prev =>({
-              ...prev,
-              jobType: jobData.type ?? "",
-              jobTitle: jobData.title ?? "",
-              location: jobData.location ?? "",
-              category: jobData.category ?? "",
-              requirement: jobData.requirements ?? "",
-              description: jobData.description ?? "",
-              salaryMin: jobData.salaryMin ?? "",
-              salaryMax: jobData.salaryMax ?? "",
-              salaryCurrency: jobData.salaryCurrency ??  "NGN",
-              workMode: jobData.workMode ??  "onsite",
-              experienceLevel: jobData.experienceLevel ??  "mid",
-              paymentPeriod: jobData.paymentPeriod ?? "monthly"
-            }));
-          }
-        } catch (err) {
-          if (err.res) {
-            console.error("API Error:");
-          }
+        const res = await axiosInstance.get(
+          API_PATHS.JOBS.GET_JOB_BY_ID(jobId),
+        );
+        const jobData = res.data?.data;
+
+        if (jobData) {
+          setFormData((prev) => ({
+            ...prev,
+            jobType: jobData.type ?? "",
+            jobTitle: jobData.title ?? "",
+            location: jobData.location ?? "",
+            category: jobData.category ?? "",
+            requirement: jobData.requirements ?? "",
+            description: jobData.description ?? "",
+            salaryMin: jobData.salaryMin ?? "",
+            salaryMax: jobData.salaryMax ?? "",
+            salaryCurrency: jobData.salaryCurrency ?? "NGN",
+            workMode: jobData.workMode ?? "onsite",
+            experienceLevel: jobData.experienceLevel ?? "mid",
+            salaryPeriod: jobData.salaryPeriod ?? "monthly",
+            responsibilities: jobData.responsibilities ?? "",
+            skills: jobData.skills || [],
+            benefits: jobData.benefits || [],
+            applicationDeadline: jobData.applicationDeadline
+              ? new Date(jobData.applicationDeadline)
+                  .toISOString()
+                  .split("T")[0]
+              : "",
+            expiryAt: jobData.expiryAt
+              ? new Date(jobData.expiryAt).toISOString().split("T")[0]
+              : "",
+            isFeatured: jobData.isFeatured || false,
+          }));
         }
+      } catch (err) {
+        if (err.res) {
+          console.error("API Error:");
+        }
+      }
     };
     fetchJobDetailsForEdit();
     return () => {};
@@ -253,7 +360,7 @@ const JobPostingForm = () => {
                   Post a New Job
                 </h2>
                 <p className="text-sm text-gray-600 mt-1">
-                  Fill out the form below to get your Job Posting
+                  Fill out the form below to get your Job Posted
                 </p>
               </div>
               <div className="flex items-center space-x-2">
@@ -322,6 +429,7 @@ const JobPostingForm = () => {
                   icon={Users}
                 />
 
+                {/* Job type */}
                 <SelectField
                   label={`Job Type`}
                   id={`jobType`}
@@ -335,63 +443,210 @@ const JobPostingForm = () => {
                 />
               </div>
 
+              {/* Work Mode */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-               <SelectField
-               label={`Work Mode`}
-               id={`workMode`}
-               placeholder={`select work mode`}
-               value={formData.workMode}
-               onChange={(e)=>handleInputChange("workMode", e.target.value)}
-               option={WORK_MODE}
-               error={errs.workMode}
-               required
-               icon={Wifi}
-               />
+                <SelectField
+                  label={`Work Mode`}
+                  id={`workMode`}
+                  placeholder={`select work mode`}
+                  value={formData.workMode}
+                  onChange={(e) =>
+                    handleInputChange("workMode", e.target.value)
+                  }
+                  option={WORK_MODE}
+                  error={errs.workMode}
+                  required
+                  icon={Wifi}
+                />
 
-
-               <SelectField
+                {/* Experience Level */}
+                <SelectField
                   label={`Experience Level`}
                   id={`experienceLevel`}
                   value={formData.experienceLevel}
-                  onChange={(e) => handleInputChange("experienceLevel", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("experienceLevel", e.target.value)
+                  }
                   placeholder={`Select experience level`}
                   option={EXPERIENCE_LEVEL}
                   error={errs.experienceLevel}
                   icon={TrendingUp}
                 />
+
+                <div className="flex items-end">
+                  <label className="flex items-center space-x-3 cursor-pointer bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-200 rounded-lg px-4 py-3 w-full hover:from-amber-100 hover:to-yellow-100 transition-colors duration-200">
+                    <input
+                      type="checkbox"
+                      checked={formData.isFeatured}
+                      onChange={(e) =>
+                        handleInputChange("isFeatured", e.target.checked)
+                      }
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <span>⭐</span>
+                    <span className="text-sm font-medium text-gray-700">
+                      Featured Job
+                    </span>
+                  </label>
+                </div>
               </div>
 
               {/* Job Description */}
               <TextareaField
                 label={`Job Description`}
                 id={`description`}
-                placeholder={`Describe the role and the responsiblities.....`}
+                placeholder={`Describe the role`}
                 required
                 value={formData.description}
                 onChange={(e) =>
                   handleInputChange("description", e.target.value)
                 }
                 error={errs.description}
-                helperText={`Include: key responsibilities, day-to-day task, and what make this role exciting.`}
+                //helperText={`Include: key responsibilities, day-to-day task, and what make this role exciting.`}
               />
 
+              {/* Requirement */}
               <TextareaField
                 label={`Requirement`}
                 id={`requirement`}
-                placeholder={`List key qualifications and skills.....`}
+                placeholder={`Requirement and qualifications`}
                 value={formData.requirement}
                 onChange={(e) =>
                   handleInputChange("requirement", e.target.value)
                 }
                 error={errs.requirement}
                 required
-                helperText={`Include: required skills, experience levels, education, and any preference qualification. `}
+                //helperText={`Include: required skills, experience levels, education, and any preference qualification. `}
               />
+
+              {/* responsibilities */}
+
+              <TextareaField
+                label={`responsibilities`}
+                id={`responsibilities`}
+                placeholder={`responsibility`}
+                value={formData.responsibilities}
+                onChange={(event) =>
+                  handleInputChange("responsibilities", event.target.value)
+                }
+                error={errs.responsibilities}
+                required
+              />
+
+              {/* Skills */}
+              <div className="space-y-4">
+                <label
+                  htmlFor="skills"
+                  className="text-sm font-medium text-gray-600"
+                >
+                  Required Skills
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    id={`skills`}
+                    label={`Skills`}
+                    placeholder="Add skills if required"
+                    value={skillInput}
+                    onChange={(event) => setSkillInput(event.target.value)}
+                    onKeyPress={(event) =>
+                      event.key === "Enter" &&
+                      (event.preventDefault(), handleAddSkill())
+                    }
+                    className="flex-1 px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddSkill}
+                    className="px-4 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2"
+                  >
+                    <span className="text-white">
+                      <Plus className="w-4 h-4" />
+                    </span>
+                    Add skill
+                  </button>
+                </div>
+                {formData.skills.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {formData.skills.map((skill, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100  text-blue-700 rounded-lg text-sm"
+                      >
+                        {skill}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveSkill(skill)}
+                          className="hover:text-red-600"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Benefits */}
+              <div className="space-y-3">
+                <label className="text-sm font-medium text-gray-700">
+                  Benefits
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Add benefit if required but it shouldn't exceeded 150 characters "
+                    value={benefitInput}
+                    onChange={(e) => setBenefitInput(e.target.value)}
+                    onKeyPress={(e) =>
+                      e.key === "Enter" &&
+                      (e.preventDefault(), handleAddBenefit())
+                    }
+                    maxLength={200}
+                    className="flex-1 px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddBenefit}
+                    className="px-4 py-2.5 bg-green-500 text-white rounded-lg hover:bg-green-600 flex items-center gap-2"
+                  >
+                    <span>
+                      <Plus className="w-4 h-4" />
+                    </span>
+                    Add benefit
+                  </button>
+                </div>
+                {errs.benefits && (
+                  <p className="text-sm text-red-600 flex items-center gap-1">
+                    <AlertTriangle className="w-4 h-4"/>
+                     <span> {errs.benefits}</span>
+                  </p>
+                )}
+                {formData.benefits.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {formData.benefits.map((benefit, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-lg"
+                      >
+                        <span className="text-sm text-gray-700">{benefit}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveBenefit(benefit)}
+                          className="text-green-600 hover:text-red-600"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               {/* Salary range */}
               <div className="space-y-3">
                 <label className="text-sm font-medium text-gray-700">
-                  Salary Range <span className="text-red-500 ml-1">*</span>
+                  Payment Range <span className="text-red-500 ml-1">*</span>
                 </label>
 
                 {/* Currency Selector */}
@@ -411,17 +666,19 @@ const JobPostingForm = () => {
 
                   <SelectField
                     label=""
-                    id="paymentPeriod"
-                    value={formData.paymentPeriod}
-                    onChange={(e) => handleInputChange("paymentPeriod", e.target.value)}
-                    option={PAYMENT_PERIOD}
+                    id="salaryPeriod"
+                    value={formData.salaryPeriod}
+                    onChange={(e) =>
+                      handleInputChange("salaryPeriod", e.target.value)
+                    }
+                    option={SAlARY_PERIOD}
                     placeholder="Select payment period"
-                    error={errs.paymentPeriod}
+                    error={errs.salaryPeriod}
                     icon={Clock}
                   />
                 </div>
 
-                {/* Min and Max Salary Inputs */}
+                {/* Min && Max Salary Inputs */}
                 <div className="grid grid-cols-2 gap-3">
                   {/* Min Salary */}
                   <div className="relative">
@@ -438,9 +695,9 @@ const JobPostingForm = () => {
                         handleInputChange("salaryMin", e.target.value)
                       }
                       className="w-full pl-10 pr-3 py-2.5 border border-gray-300
-         rounded-lg text-base focus:outline-none focus:ring-1
-          focus:ring-blue-500 focus:ring-opacity-20 transition-colors duration-200
-          focus:border-blue-500"
+                      rounded-lg text-base focus:outline-none focus:ring-1
+                     focus:ring-blue-500 focus:ring-opacity-20 transition-colors duration-200
+                     focus:border-blue-500"
                     />
                   </div>
 
@@ -459,9 +716,9 @@ const JobPostingForm = () => {
                         handleInputChange("salaryMax", e.target.value)
                       }
                       className="w-full pl-10 pr-3 py-2.5 border border-gray-300
-         rounded-lg text-base focus:outline-none focus:ring-1
-          focus:ring-blue-500 focus:ring-opacity-20 transition-colors duration-200
-          focus:border-blue-500"
+                     rounded-lg text-base focus:outline-none focus:ring-1
+                   focus:ring-blue-500 focus:ring-opacity-20 transition-colors duration-200
+                  focus:border-blue-500"
                     />
                   </div>
                 </div>
@@ -480,7 +737,39 @@ const JobPostingForm = () => {
                   </div>
                 )}
               </div>
-
+                {/* Deadline */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                  <label htmlFor="deadlineDate" className="items-center flex text-sm font-medium text-gray-600">
+                    <span className=" flex  ml-2 gap-2">
+                      <Calendar className="w-5 h-5"/>
+                      Application Dead line
+                    </span>
+                  </label>
+                  <input
+                  type="date"
+                  value={formData.applicationDeadline}
+                  onChange={(event)=>handleInputChange("applicationDeadline", event.target.value)}
+                  min={new Date().toISOString().split("T")[0]}
+                  className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                  {errs.applicationDeadline && (
+                    <p className="text-sm text-red-600 flex items-center gap-1">
+                      <AlertTriangle className="w-4 h-4"/>
+                      <span>{errs.applicationDeadline}</span>
+                    </p>
+                  )}
+                  <p className="text-sm text-gray-500">When should application close?</p>
+                  </div>
+                  <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <span>
+                    <Calendar className="h-5 w-5"/>
+                  </span>
+                  Job Expiration Date
+                  </label>
+                  </div>
+                </div>
               {/* Submit Btn */}
               <div className="pt-2">
                 <button

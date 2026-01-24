@@ -186,7 +186,7 @@ const SignUp = () => {
             Account Created!
           </h2>
           <p className="text-gray-600 mb-4">
-            Welcome to Job Runner! Your Account has been created successfully.
+            Welcome to Jobify! Your Account has been created successfully.
           </p>
           {/* Spinner */}
           <div className="animate-spin w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mx-auto" />
@@ -205,7 +205,7 @@ const SignUp = () => {
       >
         <div className="text-center mb-4">
           <h2 className="bg-gradient-to-r from-blue-600 text-transparent bg-clip-text to-purple-600 text-xl font-bold text-gray-900 mb-2">
-            Create Account
+            Register
           </h2>
           <p className="tex-sm text-gray-600">
             Join thousands of professionals finding their dream jobs
