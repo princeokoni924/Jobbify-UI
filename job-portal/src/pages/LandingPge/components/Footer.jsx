@@ -1,4 +1,3 @@
-import React from "react";
 import { 
   Briefcase, 
   Mail, 
@@ -28,7 +27,7 @@ const Footer = () => {
     forEmployers: [
       { label: "Post a Job", href: "/post-job" },
       { label: "Browse Candidates", href: "/candidates" },
-      { label: "Pricing Plans", href: "/pricing" },
+      { label: "Pricing Plans", href: "/price" },
       { label: "Recruiter Tools", href: "/tools" },
       { label: "Success Stories", href: "/success-stories" },
     ],
