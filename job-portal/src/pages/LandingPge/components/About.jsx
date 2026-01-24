@@ -43,10 +43,10 @@ export default function AboutUs() {
   ];
 
   const milestones = [
-    { year: '2020', event: 'Jobify Founded', description: 'Started with a vision to revolutionize recruitment' },
-    { year: '2021', event: 'AI Integration', description: 'Launched smart matching algorithm' },
-    { year: '2023', event: 'Global Expansion', description: 'Reached 25+ countries worldwide' },
-    { year: '2024', event: 'V2.0 Launch', description: 'Next-gen platform with enhanced features' }
+    { year: '2025', event: 'Jobify Founded', description: 'Started with a vision to revolutionize recruitment' },
+    // { year: '2021', event: 'AI Integration', description: 'Launched smart matching algorithm' },
+    // { year: '2023', event: 'Global Expansion', description: 'Reached 25+ countries worldwide' },
+    // { year: '2024', event: 'V2.0 Launch', description: 'Next-gen platform with enhanced features' }
   ];
 
   return (
