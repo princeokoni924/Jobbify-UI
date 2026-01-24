@@ -20,6 +20,7 @@ import ApplicationView from "./pages/Employer/ApplicationView";
 import EmployerProfilePage from "./pages/Employer/EmployerProfilePage";
 import { AuthProvider } from "./content/AuthContext";
 import UnAuthorizePage from "./pages/err/UnAuthorizePage";
+import AboutUs from './pages/LandingPge/components/About';
 const App = () => {
   return (
     <AuthProvider>
@@ -32,6 +33,7 @@ const App = () => {
           <Route path="/find-jobs" element={<JobSeekerDashboard />} />
           <Route path="/jobs/:jobId" element={<JobDetails />} />
           <Route path="/saved-job" element={<SavedJob />} />
+          <Route path="/about-us" element={<AboutUs />} />
           
 
           {/* Protected oute */}

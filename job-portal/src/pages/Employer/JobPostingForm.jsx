@@ -759,7 +759,7 @@ const JobPostingForm = () => {
                       <span>{errs.applicationDeadline}</span>
                     </p>
                   )}
-                  <p className="text-sm text-gray-500">When should application close?</p>
+                  <p className="text-sm text-gray-500 font-medium">When should application close?</p>
                   </div>
                   <div className="space-y-2">
                       <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
@@ -768,6 +768,20 @@ const JobPostingForm = () => {
                   </span>
                   Job Expiration Date
                   </label>
+                  <input
+                  type="date"
+                  value={formData.expiryAt}
+                  onChange={(event)=>handleInputChange("expiryAt", event.target.value)}
+                  min={new Date().toISOString().split("T")[0]}
+                  className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                  {errs.expiryAt && (
+                    <p className="text-sm text-red-600 flex items-center gap-1">
+                      <AlertTriangle className="w-4 h-4"/>
+                      <span>{errs.expiryAt}</span>
+                    </p>
+                  )}
+                  <p className="text-sm font-medium text-gray-500">Default to 90 days if not set.</p>
                   </div>
                 </div>
               {/* Submit Btn */}
