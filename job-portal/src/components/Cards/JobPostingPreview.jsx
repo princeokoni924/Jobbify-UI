@@ -57,7 +57,7 @@ const JobPostingPreview = ({ formData, setIsPreview }) => {
   // format salary for display
   const format_salary = () => {
     if (!formData.salaryMin || !formData.salaryMax) {
-      return "Compitative Salary";
+      return "Not specified";
     }
 
     const min = parseInt(formData.salaryMin).toLocaleString();
@@ -66,7 +66,6 @@ const JobPostingPreview = ({ formData, setIsPreview }) => {
     return `${currencyInfo.symbol} ${min} - ${currencyInfo.symbol} ${max} per ${period}`;
   };
   const { user } = useAuth();
-  //const currencies = [{ value: "usd" }, { label: "$" }];
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/20 lg:px-8 py-8 px-4 sm:px-6">
       <div className="max-w-4xl mx-auto">
@@ -185,10 +184,6 @@ const JobPostingPreview = ({ formData, setIsPreview }) => {
                         </h3>
                         <div className="text-sm md:text-lg font-bold text-gray-900 ">
                           {format_salary()}
-                          {/* {formData.salaryMax.toLocaleString()}
-                          <span className="text-sm md:text-lg text-gray-600 font-normal ml-2">
-                            Per Month
-                          </span> */}
                         </div>
                         <div className="text-xs text-gray-600 mt-1">
                           Currency:{" "}

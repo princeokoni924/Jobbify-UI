@@ -44,12 +44,14 @@ const Header = () => {
           {/* Navigation link Hidden on mobile */}
           <nav className="hidden md:flex space-x-8">
             <a
+            href="#"
               onClick={() => navigate("/find-jobs")}
-              className="text-gray-600 hover:text-gray-500 transition-colors cursor-pointer font-medium"
+              className="text-gray-600 hover:text-blue-500 transition-colors cursor-pointer font-medium"
             >
               find jobs
             </a>
             <a
+            href="#"
               onClick={() => {
                 navigate(
                   isAuthenticated && user?.role === "employer"
@@ -57,9 +59,47 @@ const Header = () => {
                     : "/login"
                 );
               }}
-              className="text-gray-600 hover:text-gray-900 cursor-pointer transition-colors font-medium"
+              className="text-gray-600 hover:text-blue-500 cursor-pointer transition-colors font-medium"
             >
               For Employers
+            </a>
+
+             <a
+             href="#"
+              onClick={() => navigate("/price")}
+              className="text-gray-600 hover:text-blue-500 transition-colors cursor-pointer font-medium"
+            >
+             Pricing Plans
+            </a>
+
+            <a
+             href="#"
+              onClick={() => navigate("/")}
+              className="text-gray-600 hover:text-blue-500 transition-colors cursor-pointer font-medium"
+            >
+             Partner
+            </a>
+             <a
+             href="#"
+              onClick={() => navigate("/")}
+              className="text-gray-600 hover:text-blue-500 transition-colors cursor-pointer font-medium"
+            >
+             Press & Media
+            </a>
+            <a
+             href="#"
+              onClick={() => navigate("/about-us")}
+              className="text-gray-600 hover:text-blue-500 transition-colors cursor-pointer font-medium"
+            >
+             About Us
+            </a>
+
+             <a
+             href="#"
+              onClick={() => navigate("/")}
+              className="text-gray-600  hover:text-blue-500 transition-colors cursor-pointer font-medium"
+            >
+             Contact Us
             </a>
           </nav>
 
@@ -67,7 +107,7 @@ const Header = () => {
           <div className="flex items-center space-x-3">
             {isAuthenticated ? (
               <div className="flex items-center space-x-3">
-                <span className="text-gray-700">Welcome, {user?.fullName}</span>
+                <span className="text-gray-700">Welcome,</span>
                 <a
                   href={
                     user.role === "employer"
@@ -77,14 +117,15 @@ const Header = () => {
                   className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg font-medium
                 hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-sm hover:shadow-sm"
                 >
-                  Dashboard
+                  {user?.name || "Dashboard"}
+                 {/* {user?.fullName} Dashboard */}
                 </a>
               </div>
             ) : (
               <>
                 <a
                   href="/login"
-                  className="text-gray-600 hover:text-gray-900 transition-colors font-medium px-4 py-2 rounded-lg hover:bg-gray-500"
+                  className="text-gray-600 hover:text-gray-900 transition-colors font-medium px-4 py-2 rounded-lg hover:bg-blue-500 gap-2"
                 >
                   Login
                 </a>

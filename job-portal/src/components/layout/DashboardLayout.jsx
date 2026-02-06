@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../content/AuthContext";
 import { NAVIGATION_MENU } from "../../pages/utils/data";
 import ProfileDropdown from "../layout/ProfileDropdown";
+import Navbar from "./Navbar";
 
 const DashboardLayout = ({ activeMenu, children }) => {
   const { user, logout } = useAuth();
@@ -181,6 +182,7 @@ const DashboardLayout = ({ activeMenu, children }) => {
 
           <div className="flex items-center space-x-3">
             {/* Profile Dropdown */}
+            {/* <Navbar/> */}
             <ProfileDropdown
               isOpen={profileDropdownOpen}
               onToggle={(e) => {

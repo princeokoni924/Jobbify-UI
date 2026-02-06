@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 export default function AboutUs() {
   const [activeSection, setActiveSection] = useState(0);
   const [scrollY, setScrollY] = useState(0);
-
+const currentYear = new Date().getFullYear()
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', handleScroll);
@@ -285,11 +285,11 @@ export default function AboutUs() {
       </div>
 
       {/* Footer */}
-      {/* <div className="bg-slate-900 text-white py-8">
+      <div className="bg-slate-900 text-white py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-gray-400">© 2024 Jobify. Empowering careers worldwide.</p>
+          <p className="text-gray-400">© {currentYear} Jobify. Empowering careers worldwide.</p>
         </div>
-      </div> */}
+      </div>
     </div>
   );
 }

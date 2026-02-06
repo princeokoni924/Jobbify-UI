@@ -12,10 +12,18 @@ import {
   Heart
 } from "lucide-react";
 import { Link } from "react-router-dom";
-
+import { useNavigate} from "react-router-dom";
+import {useCallback } from "react"
 const Footer = () => {
+  const navigate = useNavigate()
   const currentYear = new Date().getFullYear();
 
+
+ // handle navigation
+ const handleNavigationClick = useCallback(()=> {
+   navigate("/")
+ }, [navigate])
+ 
   const footerLinks = {
     forJobSeekers: [
       { label: "Browse Jobs", href: "/find-jobs" },
@@ -56,7 +64,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-300 overflow-hidden">
+    <footer className="relative bg-gradient-to-br h-[100%] from-gray-900 via-gray-800 to-gray-900 text-gray-300 overflow-hidden">
       {/* Decorative Background Elements */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
@@ -101,10 +109,17 @@ const Footer = () => {
             {/* Brand Section */}
             <div className="lg:col-span-2 space-y-6">
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                
+                
+                <a
+                onClick={handleNavigationClick}
+                className="cursor-pointer"
+                >
+                 <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
                   <Briefcase className="w-7 h-7 text-white" />
                 </div>
                 <h3 className="text-3xl font-bold text-white">Jobify</h3>
+                </a>
               </div>
               
               <p className="text-gray-400 leading-relaxed">

@@ -1,4 +1,12 @@
-import { Bookmark, Building2, Calendar, MapPin, Building } from "lucide-react";
+import {
+  Bookmark,
+  Building2,
+  Calendar,
+  MapPin,
+  Building,
+  AlertCircle,
+  AlertTriangle,
+} from "lucide-react";
 import moment from "moment";
 import { useAuth } from "../../content/AuthContext";
 import StatusBadge from "../StatusBadge";
@@ -7,7 +15,37 @@ import { useNavigate } from "react-router-dom";
 const JobCard = ({ job, onToggleSave, saved, hideApply }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const jobId = job?._id;
+  // check if job is expired or closed
+  const isExpiredJob = job?.expiresAt && new Date(job.expiresAt) < new Date();
+  const isDeadlinePass =
+    job?.applicationDeadline && new Date(job.applicationDeadline) < new Date();
+  const isClosed = job?.isClosed || isExpiredJob || isDeadlinePass;
 
+  // Calculate days until expiration
+  const getDaysUntilExpirationDate = () => {
+    if (job?.expiresAt) {
+      return null;
+    }
+    const now = new Date();
+    const expiry = new Date(job?.expiresAt);
+    const different_time = expiry - now;
+    if (different_time < 0) {
+      return 0;
+    }
+    return Math.ceil(different_time / (1000 * 60 * 60 * 24));
+  };
+  // Prevent application to closed/expired jobs
+  if (isClosed) {
+    // Button should already be disabled
+    return;
+  }
+
+  // Don't render closed/expired jobs for job seekers (unless viewing saved jobs)
+  if (isClosed && !saved && user?.role === "jobseeker") {
+    return null;
+  }
+  const daysUntilExpirationDate = getDaysUntilExpirationDate();
   const formatSalary = (min, max, currency = "NGN") => {
     const currencySymbols = {
       NGN: "₦",
@@ -43,34 +81,29 @@ const JobCard = ({ job, onToggleSave, saved, hideApply }) => {
 
   // Navigate to job details when card is clicked
   const handleCardClick = () => {
-    const jobId = job?._id || job?.id;
     if (jobId) {
       navigate(`/jobs/${jobId}`);
     }
   };
 
   // Navigate to application page with resume upload
-  const handleApplyClick = (e) => {
+  const handleRedirectClick = (e) => {
     e.stopPropagation(); // Prevent card click event
 
     if (!user) {
       // If not logged in, redirect to login
-      navigate("/login", {
-        state: {
-          from: `/jobs/${job?._id}`,
-          message: "Please login to apply for this job",
-        },
-      });
+      navigate("/login", {});
       return;
     }
 
     // Navigate to application form with job details
-    navigate(`/apply/${job._id}`, {
+    navigate(`/apply/${jobId}`, {
       state: {
         job: {
           id: job._id,
           title: job.title,
           company: job.company?.companyName,
+          companyLogo: job.company?.companyLogo,
           location: job.location,
           type: job.type,
         },
@@ -80,15 +113,40 @@ const JobCard = ({ job, onToggleSave, saved, hideApply }) => {
 
   return (
     <div
-      className="bg-white rounded-2xl border border-gray-200
+      className={`bg-white rounded-2xl border ${
+        isClosed ? "border-red-200 bg-red-50/30" : "border-gray-200"
+      } 
         p-6 hover:shadow-xl hover:shadow-gray-200
         transition-all duration-300
-        group relative overflow-hidden cursor-pointer"
+        group relative overflow-hidden cursor-pointer`}
       onClick={handleCardClick}
     >
+      {/* Closed/Expired Badge  */}
+      {isClosed && (
+        <div className="absolute top-4 right-4 z-10">
+          <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-full border border-red-200">
+            <AlertCircle className="w-3 h-3" />
+            {isExpiredJob ? "Expired" : "Closed"}
+          </span>
+        </div>
+      )}
+
+      {/*  Expiring Soon Warning */}
+      {!isClosed &&
+        daysUntilExpirationDate !== null &&
+        daysUntilExpirationDate <= 7 &&
+        daysUntilExpirationDate > 0 && (
+          <div className="absolute top-4 right-4 z-10">
+            <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold bg-yellow-100 text-yellow-400 rounded-full border border-yellow-200">
+              <AlertTriangle className="w-3 h-3" />
+              {daysUntilExpirationDate} day{" "}
+              {daysUntilExpirationDate !== 1 ? "s" : ""} left
+            </span>
+          </div>
+        )}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-start gap-4">
-          {job?.company?.companyLogo ? (
+          {job?.company.companyLogo ? (
             <img
               className="w-14 h-14 object-cover rounded-2xl border-2
                 border-white/20 shadow-lg"
@@ -188,6 +246,13 @@ const JobCard = ({ job, onToggleSave, saved, hideApply }) => {
             Posted{" "}
             {job?.createdAt ? moment(job?.createdAt).fromNow() : "recently"}
           </span>
+          {/* Show expiration info */}
+          {job?.expiresAt && !isExpiredJob && (
+            <span className="flex items-center gap-1.5 text-gray-500">
+              <AlertCircle className="w-3.5 h-3.5" />
+              Expires {moment(job.expiresAt).fromNow()}
+            </span>
+          )}
         </div>
       </div>
       {/* salaryPeriod */}
@@ -215,22 +280,42 @@ const JobCard = ({ job, onToggleSave, saved, hideApply }) => {
             ) : (
               <>
                 {!hideApply && (
-                  <button
-                    onClick={handleApplyClick}
-                    className="bg-gradient-to-r from-blue-500 to-blue-600 text-sm text-white px-6 py-2.5 rounded-xl
+                  <>
+                    {isClosed ? (
+                      <button
+                      disabled
+                      className="bg-gray-300 text-gray-500 text-sm px-6 py-2.5 rounded-lg cursor-not-allowed font-semibold"
+                      >
+                        {isExpiredJob ? "Expired" :" Closed"}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={handleRedirectClick}
+                        className="bg-gradient-to-r from-blue-500 to-blue-600 text-sm text-white px-6 py-2.5 rounded-xl
                       hover:from-blue-600 hover:to-blue-700 
                       transition-all duration-200 font-semibold transform hover:-translate-y-0.5 hover:shadow-lg"
-                  >
-                    Apply Now
-                  </button>
+                      >
+                        Apply Now
+                      </button>
+                    )}
+                  </>
                 )}
               </>
             )}
           </>
         )}
       </div>
+       {/* Closed Reason Display */}
+      {isClosed && job?.closedReason && (
+        <div className="mt-3 pt-3 border-t border-red-200">
+          <p className="text-xs text-red-600 flex items-start gap-1">
+            <AlertCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
+            <span>{job.closedReason}</span>
+          </p>
+        </div>
+      )}
 
-      {/* Optional: Show application count or views */}
+      {/* Show application count or views */}
       {(job?.applicationCount > 0 || job?.viewCount > 0) && (
         <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-4 text-xs text-gray-500">
           {job?.applicationCount > 0 && (
@@ -250,6 +335,7 @@ const JobCard = ({ job, onToggleSave, saved, hideApply }) => {
   );
 };
 export default JobCard;
+
 // import { Bookmark, Building, Building2, MapPin, Calendar } from "lucide-react";
 // import moment from "moment";
 // import { useAuth } from "../../content/AuthContext";

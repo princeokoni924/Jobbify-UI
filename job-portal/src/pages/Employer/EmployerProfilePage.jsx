@@ -54,8 +54,6 @@ const EmployerProfilePage = () => {
     }
   };
 
- 
-
   // handle img change
   const handleImgChange = (e, type) => {
     //if(!e?.target?.files?.length)return;
@@ -71,28 +69,24 @@ const EmployerProfilePage = () => {
     }
   };
 
-  
-
   // save img
   const handleSaveAsync = async () => {
     setSaving(true);
     try {
       const response = await axiosInstance.put(
         API_PATHS.AUTH.UPDATE_PROFILE,
-        formData
+        formData,
       );
       if (response.status === 200) {
-        const updatedUser = response.data.user ?? {...user, ...formData};
+        const updatedUser = response.data.user ?? { ...user, ...formData };
         toast.success("Profile Image updated successfully!!");
         // update profile data and exit edit mode
         setProfileData(updatedUser);
-        //setProfileData({...formData});
-        //updateUser({...formData});
         updateUser(updatedUser);
         setEditMode(false);
       }
     } catch (err) {
-      toast.error("Error updating profile!",err);
+      toast.error("Error updating profile!", err);
     } finally {
       setSaving(false);
     }
@@ -149,26 +143,14 @@ const EmployerProfilePage = () => {
                   </h2>
                   {/* Profile picture */}
                   <div className="flex items-center space-x-4">
-                    {/* {profileData?.avatar && (
-                      <img
-                        src={profileData.avatar}
-                        alt={"Profile"}
-                        className="w-20 h-20 object-cover
-              rounded-full border-4
-              hover:border-blue-500
-               transition-colors
-                -translate-x-2 duration-200 hover:shadow-xl"
-                      />
-                    )} */}
-
                     <img
                       src={profileData.avatar || null}
                       alt={"Profile"}
                       className="w-20 h-20 object-cover
-              rounded-full border-2
-              hover:border-blue-500
-               transition-colors
-                -translate-x-2 duration-200 hover:shadow-xl"
+                     rounded-full border-2
+                   hover:border-blue-500
+                    transition-colors
+                    -translate-x-2 duration-200 hover:shadow-xl"
                     />
 
                     <div>
@@ -190,13 +172,7 @@ const EmployerProfilePage = () => {
 
                   {/* company logo */}
                   <div className="flex items-center space-x-4">
-                    {/* {profileData?.companyLogo && (
-                      <img
-                        src={profileData.companyLogo}
-                        alt={"Company Logo"}
-                        className="w-20 h-20 rounded-lg object-cover border-4 border-blue-50"
-                      />
-                    )} */}
+                   
                     <img
                       src={profileData.companyLogo || null}
                       alt={" logo"}

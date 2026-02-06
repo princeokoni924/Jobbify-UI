@@ -2,22 +2,16 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import {
   Users,
   ArrowLeft,
-  Calendar,
   MapPin,
   Briefcase,
-  Download,
-  Eye,
   AlertCircle,
 } from "lucide-react";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import axiosInstance from "../utils/axiosInstance";
 import { API_PATHS } from "../utils/apiPath";
-import { getInitials } from "../utils/helpler";
 import { useLocation, useNavigate } from "react-router-dom";
-import moment from "moment";
-import StatusBadge from "../../components/StatusBadge";
 import ApplicationProfilePreview from "../../components/Cards/ApplicationProfilePreview";
-
+import ApplicationCard from "../../components/Cards/ApplicationCard";
 const ApplicationView = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -38,13 +32,24 @@ const ApplicationView = () => {
         API_PATHS.APPLICATIONS.GET_ALL_APPLICATIONS(jobId)
       );
       
-      if (response.data && Array.isArray(response.data)) {
-        setApplications(response.data);
-      } else {
-        throw new Error("Invalid response format");
-      }
+       let applicationData =[];
+       if(response.data?.success && response.data?.data?.applications){
+        applicationData = response.data.data.applications;
+       }else if(Array.isArray(response.data)){
+        applicationData = response.data;
+       }else if(response.data?.data && Array.isArray(response.data.data)){
+        applicationData = response.data
+       }else {
+      throw new Error("Invalid data format received");
+    }
+     if (!Array.isArray(applicationData)) {
+      throw new Error("Applications data is not an array");
+    }
+
+    setApplications(applicationData);
+      
     } catch (err) {
-      console.error("Failed to fetch applications:");
+      console.error("Failed to fetch applications:", err);
       const errorMessage =
         err.response?.data?.message ||
         err.message ||
@@ -63,12 +68,12 @@ const ApplicationView = () => {
     }
   }, [jobId, navigate, fetchApplication]);
 
+// group applications
   const groupApplication = useMemo(() => {
     if (!applications.length) return {};
 
     return applications.reduce((acc, app) => {
-      if (!app.job?._id || !app.job?.title) return acc;
-
+      if (!app || !app.job || !app.job?._id || !app.job?.title) return acc;
       const currentJobId = app.job._id;
       if (!acc[currentJobId]) {
         acc[currentJobId] = {
@@ -101,6 +106,7 @@ const ApplicationView = () => {
   const handleCloseProfile = useCallback(() => {
     setSelectApplicant(null);
     fetchApplication();
+    // fetchApplication
   }, [fetchApplication]);
 
   const handleBack = useCallback(() => {
@@ -128,14 +134,14 @@ const ApplicationView = () => {
 
   if (error) {
     return (
-      <DashboardLayout activeMenu="manage-jobs">
+      <DashboardLayout activeMenu={"manage-jobs"}>
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
           <div className="text-center max-w-md">
             <AlertCircle className="w-12 h-12 text-red-500 mx-auto" />
             <h3 className="mt-4 text-lg font-medium text-gray-900">
               Error Loading Applications
             </h3>
-            <p className="mt-2 text-gray-600">{error}</p>
+            <p className="mt-2 text-gray-600">{error.message}</p>
             <button
               onClick={fetchApplication}
               className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -149,7 +155,7 @@ const ApplicationView = () => {
   }
 
   return (
-    <DashboardLayout activeMenu="manage-jobs">
+    <DashboardLayout activeMenu={"manage-jobs"}>
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
         <div className="mb-8">
@@ -177,7 +183,7 @@ const ApplicationView = () => {
             <div className="text-center py-16">
               <Users className="w-24 h-24 mx-auto text-gray-300" />
               <h3 className="mt-4 text-lg font-medium text-gray-900">
-                No applications available
+                No applications available yet
               </h3>
               <p className="mt-2 text-gray-500">
                 No applications found at the moment.
@@ -261,76 +267,76 @@ const ApplicationView = () => {
   );
 };
 
-// Extracted Application Card Component
-const ApplicationCard = ({ application, onDownloadResume, onViewProfile }) => {
-  const app = application;
-  const applicantName = app.applicant?.name || "Unknown Applicant";
-  const applicantEmail = app.applicant?.email || "";
-  const applicantAvatar = app.applicant?.avatar;
-  const resumeUrl = app.applicant?.resume;
-  const appliedDate = app.createdAt
-    ? moment(app.createdAt).format("Do MMM YYYY")
-    : "N/A";
+// // Extracted Application Card Component
+// const ApplicationCard = ({ application, onDownloadResume, onViewProfile }) => {
+//   const app = application;
+//   const applicantName = app.applicant?.name || "";
+//   const applicantEmail = app.applicant?.email || "";
+//   const applicantAvatar = app.applicant?.avatar;
+//   const resumeUrl = app.applicant?.resume;
+//   const appliedDate = app.createdAt
+//     ? moment(app.createdAt).format("Do MMM YYYY")
+//     : "N/A";
 
-  return (
-    <div className="flex flex-col md:flex-row md:items-center justify-between border p-4 border-gray-200 rounded-lg transition-colors hover:bg-gray-50">
-      <div className="flex items-center gap-4">
-        {/* Avatar */}
-        <div className="flex-shrink-0">
-          {applicantAvatar ? (
-            <img
-              src={applicantAvatar}
-              alt={`${applicantName}'s profile`}
-              className="w-12 h-12 rounded-full object-cover"
-              loading="lazy"
-            />
-          ) : (
-            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-              <span className="text-blue-600 font-medium">
-                {getInitials(applicantName)}
-              </span>
-            </div>
-          )}
-        </div>
+//   return (
+//     <div className="flex flex-col md:flex-row md:items-center justify-between border p-4 border-gray-200 rounded-lg transition-colors hover:bg-gray-50">
+//       <div className="flex items-center gap-4">
+//         {/* Avatar */}
+//         <div className="flex-shrink-0">
+//           {applicantAvatar ? (
+//             <img
+//               src={applicantAvatar}
+//               alt={`${applicantName}'s profile`}
+//               className="w-12 h-12 rounded-full object-cover"
+//               loading="lazy"
+//             />
+//           ) : (
+//             <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+//               <span className="text-blue-600 font-medium">
+//                 {getInitials(applicantName)}
+//               </span>
+//             </div>
+//           )}
+//         </div>
 
-        {/* Application Info */}
-        <div className="min-w-0 flex-1">
-          <h3 className="font-semibold text-gray-900">{applicantName}</h3>
-          {applicantEmail && (
-            <p className="text-gray-500 text-sm truncate">{applicantEmail}</p>
-          )}
-          <div className="flex items-center gap-1 mt-1 text-gray-500 text-xs">
-            <Calendar className="h-3 w-3" aria-hidden="true" />
-            <span>Applied {appliedDate}</span>
-          </div>
-        </div>
-      </div>
+//         {/* Application Info */}
+//         <div className="min-w-0 flex-1">
+//           <h3 className="font-semibold text-gray-900">{applicantName}</h3>
+//           {applicantEmail && (
+//             <p className="text-gray-500 text-sm truncate">{applicantEmail}</p>
+//           )}
+//           <div className="flex items-center gap-1 mt-1 text-gray-500 text-xs">
+//             <Calendar className="h-3 w-3" aria-hidden="true" />
+//             <span>Applied {appliedDate}</span>
+//           </div>
+//         </div>
+//       </div>
 
-      {/* Actions */}
-      <div className="flex items-center gap-3 mt-4 md:mt-0">
-        <StatusBadge status={app.status} />
-        <button
-          onClick={() => onDownloadResume(resumeUrl)}
-          disabled={!resumeUrl}
-          className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-          aria-label={`Download ${applicantName}'s resume`}
-        >
-          <Download className="w-4 h-4" aria-hidden="true" />
-          Resume
-        </button>
+//       {/* Actions */}
+//       <div className="flex items-center gap-3 mt-4 md:mt-0">
+//         <StatusBadge status={app.status} />
+//         <button
+//           onClick={() => onDownloadResume(resumeUrl)}
+//           disabled={!resumeUrl}
+//           className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+//           aria-label={`Download ${applicantName}'s resume`}
+//         >
+//           <Download className="w-4 h-4" aria-hidden="true" />
+//           Resume
+//         </button>
 
-        <button
-          onClick={() => onViewProfile(app)}
-          className="inline-flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors duration-200"
-          aria-label={`View ${applicantName}'s profile`}
-        >
-          <Eye className="h-5 w-5" aria-hidden="true" />
-          View Profile
-        </button>
-      </div>
-    </div>
-  );
-};
+//         <button
+//           onClick={() => onViewProfile(app)}
+//           className="inline-flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors duration-200"
+//           aria-label={`View ${applicantName}'s profile`}
+//         >
+//           <Eye className="h-5 w-5" aria-hidden="true" />
+//           View Profile
+//         </button>
+//       </div>
+//     </div>
+//   );
+// };
 
 export default ApplicationView;
 // import { useEffect, useState, useMemo } from "react";

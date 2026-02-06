@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const ProfileDropdown = ({
@@ -43,7 +43,9 @@ const ProfileDropdown = ({
             {userRole === "jobseeker" ? "Job Seeker" : "Employer"}
           </p>
         </div>
-        <ChevronDown className="h-4 w-4 text-gray-400" />
+        <ChevronDown
+        
+         className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
       </button>
 
       {isOpen && (

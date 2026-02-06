@@ -1,5 +1,4 @@
 import DashboardLayout from "../../components/layout/DashboardLayout";
-// import uploadImage from "../utils/uploadStorage";
 import { Save, X } from "lucide-react";
 
 const EditProfileDetails = ({
@@ -67,7 +66,7 @@ const EditProfileDetails = ({
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Full Name
-                        <span className="ml-1">!</span>
+                        <span className="ml-1"></span>
                       </label>
                       <input
                         type="text"
@@ -88,7 +87,7 @@ const EditProfileDetails = ({
                         htmlFor="email"
                       >
                         Email Address
-                        <span className="ml-1">!</span>
+                        <span className="ml-1"></span>
                       </label>
                       <input
                         type="email"

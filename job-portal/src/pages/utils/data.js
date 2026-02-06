@@ -147,4 +147,14 @@ export const EXPERIENCE_LEVEL=[
   {value:"senior", label:"Senior level"},
   {value:"lead", label:"lead"},
   {value:"executive", label:"Executive"}
-]
+];
+
+export const CURRENCY_CONFIG = {
+  NGN: { symbol: "₦", name: "Nigerian Naira", step: 10000 },
+  USD: { symbol: "$", name: "US Dollar", step: 1000 },
+  EUR: { symbol: "€", name: "Euro", step: 1000 },
+  GBP: { symbol: "£", name: "British Pound", step: 1000 },
+  CAD: { symbol: "C$", name: "Canadian Dollar", step: 1000 },
+  AUD: { symbol: "A$", name: "Australian Dollar", step: 1000 },
+  INR: { symbol: "₹", name: "Indian Rupee", step: 1000 },
+};

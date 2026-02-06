@@ -12,9 +12,9 @@ import FilterContent from "../JobSeeker/components/FilterContent";
 import SearchHeader from "../JobSeeker/components/SearchHeader "
 import Navbar from "../../components/layout/Navbar";
 import JobCard from "../../components/Cards/JobCard";
-import DashboardLayout from "../../components/layout/DashboardLayout";
-
-// Constants
+import MobileFiltersOverlay from "../../components/layout/MobileFiltersOverlay"
+import EmptyState from "../../components/EmptyState"
+//Constants
 const VIEW_MODES = {
   GRID: "grid",
   LIST: "list",
@@ -42,14 +42,18 @@ const INITIAL_EXPANDED_SECTIONS = {
 const JobSeekerDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-
+ 
   // State management
   const [jobs, setJobs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [viewMode, setViewMode] = useState(VIEW_MODES.GRID);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+
+  // filter state
   const [filters, setFilters] = useState(INITIAL_FILTERS);
+
+  // collape state
   const [expandedSections, setExpandedSections] = useState(INITIAL_EXPANDED_SECTIONS);
 
   // Fetch jobs from API
@@ -86,12 +90,12 @@ const JobSeekerDashboard = () => {
         : response.data?.data?.jobs || response.data?.jobs || [];
       setJobs(jobData);
     } catch (err) {
-      console.error("Error fetching jobs:", err);
+      console.error("Error fetching jobs:",err);
       
       const errorMessage = 
-        err.response?.data?.message || 
-        err.message || 
-        "Failed to fetch jobs. Please try again.";
+      //  err.response?.data?.message || 
+      //   err.message || 
+        "Oops...."+", "+ "failed to fetch jobs. Please try again later.";
       
       setError(errorMessage);
       setJobs([]);
@@ -109,17 +113,20 @@ const JobSeekerDashboard = () => {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       const apiFilters = { ...filters };
-
       // Check if there are meaningful filters
       const hasFilters = Object.values(apiFilters).some(
-        (value) => value !== "" && value !== false && value !== null && value !== undefined
+        (value) =>
+          value !== ""
+        && value !== false
+        && value !== null
+        && value !== undefined
       );
 
-      fetchJobs(hasFilters ? apiFilters : {});
+      fetchJobs(hasFilters ? apiFilters : fetchJobs()); //{}
     }, DEBOUNCE_DELAY);
 
     return () => clearTimeout(timeoutId);
-  }, [filters, fetchJobs]);
+  }, [fetchJobs, filters, user]); //user
 
   // Handle filter changes
   const handleFilterChange = useCallback((field, value) => {
@@ -157,6 +164,7 @@ const JobSeekerDashboard = () => {
   }, []);
 
   // Toggle saved job
+  // const jobId = jobs?._id || jobs.id 
   const toggleSavedJob = useCallback(async (jobId, isSaved) => {
     if (!jobId) {
       toast.error("Invalid job ID");
@@ -173,6 +181,7 @@ const JobSeekerDashboard = () => {
       }
       
       // Update local state immediately for better UX
+      //fetchJobs()
       setJobs((prevJobs) =>
         prevJobs.map((job) =>
           job._id === jobId ? { ...job, isSaved: !isSaved } : job
@@ -180,34 +189,36 @@ const JobSeekerDashboard = () => {
       );
     } catch (err) {
       console.error("Failed to toggle saved job:", err);
-      const errorMessage = err.response?.data?.message || "Failed to save job. Please try again.";
+      //const errorMessage = err.response?.data?.message || "Failed to save job. Please try again.";
+      const errorMessage = "Failed to save job. Please try again";
       toast.error(errorMessage);
     }
+    // fetchJobs
   }, []);
 
   // Apply to job
-  const applyToJob = useCallback(async (jobId) => {
-    if (!jobId) {
-      toast.error("Invalid job ID");
-      return;
-    }
+  // const applyToJob = useCallback(async (jobId) => {
+  //   if (!jobId) {
+  //     toast.error("Invalid job ID");
+  //     return;
+  //   }
 
-    try {
-      await axiosInstance.post(API_PATHS.APPLICATIONS.APPLY_TO_JOB(jobId));
-      toast.success("Application submitted successfully");
+  //   try {
+  //     await axiosInstance.post(API_PATHS.APPLICATIONS.APPLY_TO_JOB(jobId));
+  //     toast.success("Application submitted successfully");
       
-      // Update local state
-      setJobs((prevJobs) =>
-        prevJobs.map((job) =>
-          job._id === jobId ? { ...job, hasApplied: true } : job
-        )
-      );
-    } catch (err) {
-      console.error("Failed to apply to job:", err);
-      const errorMessage = err.response?.data?.message || "Failed to submit application. Please try again.";
-      toast.error(errorMessage);
-    }
-  }, []);
+  //     // Update local state
+  //     setJobs((prevJobs) =>
+  //       prevJobs.map((job) =>
+  //         job._id === jobId ? { ...job, hasApplied: true } : job
+  //       )
+  //     );
+  //   } catch (err) {
+  //     console.error("Failed to apply to job:", err);
+  //     const errorMessage = err.response?.data?.message || "Failed to submit application. Please try again.";
+  //     toast.error(errorMessage);
+  //   }
+  // }, []);
 
   // Navigate to job details
   const handleJobClick = useCallback((jobId) => {
@@ -227,8 +238,9 @@ const JobSeekerDashboard = () => {
   const jobCount = jobs.length;
 
   // Loading state
-  if (isLoading && jobs.length === 0) {
-    return <LoaderSpinner />;
+  if (isLoading ) { 
+    // && jobs.length === 0 
+    return <LoaderSpinner/>
   }
 
   return (
@@ -249,11 +261,11 @@ const JobSeekerDashboard = () => {
               <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
                 <h4 className="text-sm font-medium text-red-800">Error Loading Jobs</h4>
-                <p className="text-sm text-red-600 mt-1">{error}</p>
+                <p className="text-sm text-red-600 mt-1">{error.message}</p>
               </div>
               <button
                 onClick={() => fetchJobs(hasActiveFilters ? filters : {})}
-                className="text-sm font-medium text-red-600 hover:text-red-700 transition-colors"
+                className="text-sm bg-red-600 w-20 rounded-md h-10 font-bold text-white hover:bg-red-700 transition-colors"
               >
                 Retry
               </button>
@@ -316,7 +328,7 @@ const JobSeekerDashboard = () => {
                     )}
                   </button>
 
-                  {/* View Mode Toggle */}
+                  {/* View Mode Toggle Grid*/}
                   <div className="flex items-center border border-gray-200 rounded-xl p-1 bg-white shadow-sm">
                     <button
                       className={`p-2 rounded-lg transition-all duration-200 ${
@@ -369,7 +381,7 @@ const JobSeekerDashboard = () => {
                       job={job}
                       onClick={() => handleJobClick(job._id)}
                       onToggleSave={() => toggleSavedJob(job._id, job.isSaved)}
-                      onApply={() => applyToJob(job._id)}
+                      //onApply={() => applyToJob(job._id)}
                     />
                   ))}
                 </div>
@@ -394,128 +406,11 @@ const JobSeekerDashboard = () => {
   );
 };
 
-// Empty State Component
-const EmptyState = ({ onClearFilters, hasFilters }) => (
-  <div className="text-center py-16 lg:py-20 bg-white/60 backdrop-blur-xl rounded-2xl border border-white/20 shadow-sm">
-    <div className="text-gray-400 mb-6">
-      <Search className="w-16 h-16 mx-auto" />
-    </div>
-    <h3 className="text-xl text-gray-900 mb-3 font-bold lg:text-2xl">
-      No Jobs Found
-    </h3>
-    <p className="text-gray-600 mb-6 max-w-md mx-auto">
-      {hasFilters
-        ? "Try adjusting your search criteria or filters to find more opportunities."
-        : "There are no job postings available at the moment. Check back soon!"}
-    </p>
-    {hasFilters && (
-      <button
-        className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 active:bg-blue-800 transition-colors duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        onClick={onClearFilters}
-      >
-        Clear All Filters
-      </button>
-    )}
-  </div>
-);
-
 EmptyState.propTypes = {
   onClearFilters: PropTypes.func.isRequired,
   hasFilters: PropTypes.bool.isRequired,
 };
 
-// Mobile Filters Overlay Component
-const MobileFiltersOverlay = ({
-  isOpen,
-  onClose,
-  toggleSection,
-  clearAllFilter,
-  expandedSections,
-  filters,
-  handleFilterChange,
-}) => {
-  // Prevent body scroll when overlay is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isOpen]);
-
-  // Handle keyboard events
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (event.key === "Escape" && isOpen) {
-        onClose();
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
-
-  return (
-    <div
-      className="fixed z-50 inset-0 lg:hidden"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="mobile-filters-title"
-    >
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/30 backdrop-blur-sm transition-opacity"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-
-      {/* Panel */}
-      <div className="fixed inset-y-0 right-0 w-full max-w-sm bg-white shadow-xl animate-slide-in-right">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
-          <h3 id="mobile-filters-title" className="font-bold text-gray-900 text-lg">
-            Filters
-          </h3>
-          <button
-            className="p-2 hover:bg-gray-100 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-            onClick={onClose}
-            aria-label="Close filters"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="p-6 overflow-y-auto h-[calc(100vh-80px)]">
-          <FilterContent
-            toggleSection={toggleSection}
-            clearAllFilter={clearAllFilter}
-            expandedSections={expandedSections}
-            filters={filters}
-            handleFilterChange={handleFilterChange}
-          />
-        </div>
-
-        {/* Apply Button */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200">
-          <button
-            onClick={onClose}
-            className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          >
-            Apply Filters
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-  
-};
 
 MobileFiltersOverlay.propTypes = {
   isOpen: PropTypes.bool.isRequired,

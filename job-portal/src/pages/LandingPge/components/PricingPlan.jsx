@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Check, X, Zap, Crown, Rocket, Star, TrendingUp, Users, Shield, Sparkles, ArrowRight, HelpCircle } from 'lucide-react';
-
+import Footer from "../components/Footer"
 export default function PricingPage() {
   const [billingCycle, setBillingCycle] = useState('monthly');
   const [userType, setUserType] = useState('jobseeker');
-
+ const currentYear = new Date().getFullYear()
   const jobSeekerPlans = [
     {
       name: 'Free',
@@ -406,6 +406,12 @@ export default function PricingPage() {
               Contact Sales
             </button>
           </div>
+        </div>
+      </div>
+      {/* Footer */}
+      <div className="bg-slate-900 text-white py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-gray-400">© {currentYear} Jobify. Empowering careers worldwide.</p>
         </div>
       </div>
     </div>

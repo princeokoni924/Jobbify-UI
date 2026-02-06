@@ -92,7 +92,7 @@ const Navbar = () => {
 
   const navigateToProfile = () => {
     setIsUserMenuOpen(false);
-    navigate("/profile");
+    navigate("/user-profile");
   };
 
   const navigateToSavedJobs = () => {
@@ -168,7 +168,7 @@ const Navbar = () => {
                   Login
                 </Link>
                 <Link
-                  to="/register"
+                  to="/signup"
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                 >
                   Sign Up
@@ -259,7 +259,7 @@ const UserMenu = ({
           <p className="font-semibold text-gray-900 text-sm max-w-[120px] truncate">
             {displayName}
           </p>
-          <p className="text-xs text-gray-500">Job Seeker</p>
+          <p className="text-xs text-gray-500">{user?.role}</p>
         </div>
 
         {/* Dropdown Icon */}

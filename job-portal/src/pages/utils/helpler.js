@@ -31,7 +31,7 @@ export const validatePassword = (password) => {
 
 export const validateAvatar = (file) => {
   if (file) {
-    return ""; // avater is optional
+    return "";
   }
   const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
   if (!allowedTypes.includes(file.type)) {
@@ -57,6 +57,19 @@ export const checkPasswordRule = (password) => {
     length: password.length >= 10,
   };
 };
+
+export const validateResumeFile = (file)=>{
+const allowedFileType=['application/pdf',]
+if(!allowedFileType.includes(file.type)){
+  return "Resume must be a PDF file"
+}
+const maxSize=5*1024*1024; //2MB
+if(file.size>maxSize){
+  return `Resume must be less than 5MB. Your file is ${(file.size/(1024*1024)).toFixed(2)}MB`
+}
+
+return null;
+}
 
 export const getInitials = (name) => {
   return name

@@ -117,7 +117,7 @@ const JobPostingForm = () => {
         ...prev,
         benefits: "",
       }));
-    } else if (errs.benefitInput.trim().length > 150) {
+    } else if (benefitInput.length > 150) {
       setErrs((prev) => ({
         ...prev,
         benefitInput: "Benefit cannot exceed 150 characters",
@@ -738,8 +738,8 @@ const JobPostingForm = () => {
                 )}
               </div>
                 {/* Deadline */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" >
+                  <div className="space-y-2" hidden>
                   <label htmlFor="deadlineDate" className="items-center flex text-sm font-medium text-gray-600">
                     <span className=" flex  ml-2 gap-2">
                       <Calendar className="w-5 h-5"/>
@@ -781,7 +781,7 @@ const JobPostingForm = () => {
                       <span>{errs.expiryAt}</span>
                     </p>
                   )}
-                  <p className="text-sm font-medium text-gray-500">Default to 90 days if not set.</p>
+                  <p className="text-sm font-medium text-gray-500">Default to 30 days if not set.</p>
                   </div>
                 </div>
               {/* Submit Btn */}
