@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Briefcase, Target, Users, Award, TrendingUp, Globe, Shield, Zap, ArrowRight, CheckCircle2, Star } from 'lucide-react';
+import { Briefcase, Target, ArrowRight, CheckCircle2, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import {stats, values, milestones} from "../../utils/data"
 
 export default function AboutUs() {
+  // eslint-disable-next-line no-unused-vars
   const [activeSection, setActiveSection] = useState(0);
   const [scrollY, setScrollY] = useState(0);
 const currentYear = new Date().getFullYear()
@@ -11,43 +13,6 @@ const currentYear = new Date().getFullYear()
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  const stats = [
-    { label: 'Active Jobs', value: '50K+', icon: Briefcase },
-    { label: 'Companies', value: '10K+', icon: Users },
-    { label: 'Success Rate', value: '94%', icon: TrendingUp },
-    { label: 'Countries', value: '25+', icon: Globe }
-  ];
-
-  const values = [
-    {
-      icon: Target,
-      title: 'Innovation First',
-      description: 'Leveraging cutting-edge AI and ML to match talent with opportunities seamlessly.'
-    },
-    {
-      icon: Shield,
-      title: 'Trust & Security',
-      description: 'Enterprise-grade security ensuring your data privacy and protection at all times.'
-    },
-    {
-      icon: Zap,
-      title: 'Speed & Efficiency',
-      description: 'Streamlined processes that reduce hiring time by 60% on average.'
-    },
-    {
-      icon: Award,
-      title: 'Excellence',
-      description: 'Committed to delivering exceptional experiences for both job seekers and employers.'
-    }
-  ];
-
-  const milestones = [
-    { year: '2025', event: 'Jobify Founded', description: 'Started with a vision to revolutionize recruitment' },
-    // { year: '2021', event: 'AI Integration', description: 'Launched smart matching algorithm' },
-    // { year: '2023', event: 'Global Expansion', description: 'Reached 25+ countries worldwide' },
-    // { year: '2024', event: 'V2.0 Launch', description: 'Next-gen platform with enhanced features' }
-  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">

@@ -3,17 +3,13 @@ import {
   Mail, 
   Phone, 
   MapPin, 
-  Facebook, 
-  Twitter, 
-  Linkedin, 
-  Instagram,
-  Youtube,
   ArrowRight,
   Heart
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useNavigate} from "react-router-dom";
 import {useCallback } from "react"
+import {footerLinks, socialLinks} from "../../utils/data"
 const Footer = () => {
   const navigate = useNavigate()
   const currentYear = new Date().getFullYear();
@@ -23,46 +19,6 @@ const Footer = () => {
  const handleNavigationClick = useCallback(()=> {
    navigate("/")
  }, [navigate])
- 
-  const footerLinks = {
-    forJobSeekers: [
-      { label: "Browse Jobs", href: "/find-jobs" },
-      { label: "Job Categories", href: "/categories" },
-      { label: "Career Advice", href: "/career-advice" },
-      { label: "Resume Builder", href: "/resume-builder" },
-      { label: "Salary Guide", href: "/salary-guide" },
-    ],
-    forEmployers: [
-      { label: "Post a Job", href: "/post-job" },
-      { label: "Browse Candidates", href: "/candidates" },
-      { label: "Pricing Plans", href: "/price" },
-      { label: "Recruiter Tools", href: "/tools" },
-      { label: "Success Stories", href: "/success-stories" },
-    ],
-    company: [
-      { label: "About Us", href: "/about-us" },
-      { label: "Contact Us", href: "/contact" },
-      { label: "Careers", href: "/careers" },
-      { label: "Press & Media", href: "/press" },
-      { label: "Partners", href: "/partners" },
-    ],
-    legal: [
-      { label: "Privacy Policy", href: "/privacy" },
-      { label: "Terms of Service", href: "/terms" },
-      { label: "Cookie Policy", href: "/cookies" },
-      { label: "Accessibility", href: "/accessibility" },
-      { label: "Security", href: "/security" },
-    ],
-  };
-
-  const socialLinks = [
-    { icon: Facebook, href: "https://facebook.com/jobify", label: "Facebook", color: "hover:text-blue-600" },
-    { icon: Twitter, href: "https://twitter.com/jobify", label: "Twitter", color: "hover:text-sky-500" },
-    { icon: Linkedin, href: "https://linkedin.com/company/jobify", label: "LinkedIn", color: "hover:text-blue-700" },
-    { icon: Instagram, href: "https://instagram.com/jobify", label: "Instagram", color: "hover:text-pink-600" },
-    { icon: Youtube, href: "https://youtube.com/jobify", label: "YouTube", color: "hover:text-red-600" },
-  ];
-
   return (
     <footer className="relative bg-gradient-to-br h-[100%] from-gray-900 via-gray-800 to-gray-900 text-gray-300 overflow-hidden">
       {/* Decorative Background Elements */}

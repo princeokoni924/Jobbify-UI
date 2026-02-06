@@ -1,4 +1,3 @@
-import React from "react";
 import Feature from "./components/Feature";
 import  Header  from "./components/Header";
 import Hero from './components/Hero'

@@ -16,4 +16,6 @@ const colorMapper = {
     icon: "text-orange_deep",
   },
 };
+
+
 export default colorMapper;

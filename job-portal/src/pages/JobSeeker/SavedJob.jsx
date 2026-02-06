@@ -8,7 +8,6 @@ import toast from "react-hot-toast";
 import { useEffect, useState, useCallback } from "react";
 import Navbar from "../../components/layout/Navbar";
 import JobCard from "../../components/Cards/JobCard";
-import PropTypes from "prop-types";
 
 /**
  * View mode constants for job display
@@ -135,7 +134,7 @@ const SavedJob = () => {
   /**
    * Render error state
    */
-  const renderErrorState = () => (
+  const RenderErrorState = () => (
     <div className="flex flex-col items-center justify-center py-16 lg:py-20 bg-red-50/60 backdrop-blur-xl rounded-2xl border border-red-200/20">
       <div className="text-red-600 mb-6">
         <AlertCircle className="w-16 h-16 mx-auto" />
@@ -144,7 +143,7 @@ const SavedJob = () => {
         Failed to Load Saved Jobs
       </h3>
       <p className="text-gray-600 mb-6 text-center max-w-md">
-        {error || "An error occurred while fetching your saved jobs."}
+        {error.message || "An error occurred while fetching your saved jobs."}
       </p>
       <div className="flex gap-3">
         <button 
@@ -287,7 +286,7 @@ const SavedJob = () => {
           {/* Content Section */}
           <div className="space-y-8">
             {isLoading && renderLoadingState()}
-            {!isLoading && error && renderErrorState()}
+            {!isLoading && error && RenderErrorState()}
             {!isLoading && !error && savedJobList.length === 0 && renderEmptyState()}
             {!isLoading && !error && savedJobList.length > 0 && renderJobCards()}
           </div>

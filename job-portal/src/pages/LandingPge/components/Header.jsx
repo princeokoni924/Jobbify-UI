@@ -5,19 +5,9 @@ import { Briefcase, Menu, X } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../../content/AuthContext";
 import PropTypes from "prop-types";
+import {NAV_LINKS} from "../../utils/data"
 
-/**
- * Navigation link configuration
- */
-const NAV_LINKS = [
-  { id: "find-jobs", label: "Find Jobs", path: "/find-jobs", requiresAuth: false },
-  { id: "employers", label: "For Employers", path: "/employer-dashboard", requiresAuth: false, authPath: "/login" },
-  { id: "pricing", label: "Pricing Plans", path: "/price", requiresAuth: false },
-  { id: "partner", label: "Partner", path: "/partner", requiresAuth: false },
-  { id: "press", label: "Press & Media", path: "/press", requiresAuth: false },
-  { id: "about", label: "About Us", path: "/about-us", requiresAuth: false },
-  { id: "contact", label: "Contact Us", path: "/contact", requiresAuth: false },
-];
+
 
 /**
  * Navigation Link Component
