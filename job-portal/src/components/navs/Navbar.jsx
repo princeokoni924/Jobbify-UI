@@ -97,7 +97,7 @@ const Navbar = () => {
 
   const navigateToSavedJobs = () => {
     setIsUserMenuOpen(false);
-    navigate("/saved-jobs");
+    navigate("/saved-job");
   };
 
   const navigateToMyApplications = () => {

@@ -53,7 +53,6 @@ const App = () => {
             <Route path="/apply/:jobId" element={<ApplicationForm/>}/>
              
           </Route>
-
            {/* Unauthorized */}
           <Route path="/unauthorized" element={<UnAuthorizePage />} />
           {/* Catch all Routes */}

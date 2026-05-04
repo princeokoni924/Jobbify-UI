@@ -12,25 +12,18 @@ import {
 import {
   JOB_CATEGORIES,
   JOB_TYPES,
-  CURRENCIES,
   WORK_MODE,
   SAlARY_PERIOD,
   EXPERIENCE_LEVEL,
 } from "../../pages/utils/data";
+import { getCurrencySymbol } from "../../pages/utils/currency";
 import { useAuth } from "../../content/AuthContext";
 
 const JobPostingPreview = ({ formData, setIsPreview }) => {
   const getCurrencyInfo = () => {
-    const currency = CURRENCIES.find(
-      (c) => c.value === formData.salaryCurrency,
-    );
-    return (
-      currency || {
-        value: "NGN",
-        label: "₦ NGN (Nigerian Naira)",
-        symbol: "₦ ",
-      }
-    );
+    const code = formData.salaryCurrency || "NGN";
+    const symbol = getCurrencySymbol(code) || "₦";
+    return { value: code, label: `${code} (${symbol})`, symbol };
   };
 
   const currencyInfo = getCurrencyInfo();

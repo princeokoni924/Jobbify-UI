@@ -10,6 +10,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import moment from "moment";
+// eslint-disable-next-line no-unused-vars
 import { useNavigate, useLocation } from "react-router-dom";
 import { API_PATHS } from "../utils/apiPath";
 import axiosInstance from "../utils/axiosInstance";
@@ -18,7 +19,7 @@ import LoaderSpinner from "../../components/LoaderSpinner";
 import JobDashboardCard from "../../components/Cards/JobDashboardCard";
 import ApplicationDashboardCard from "../../components/Cards/ApplicationDashboardCard";
 import toast from "react-hot-toast";
-import {useAuth} from '../../content/AuthContext'
+import { useAuth } from "../../content/AuthContext";
 
 const Card = ({ className, children, title, headerAction, subtitle }) => {
   return (
@@ -71,9 +72,7 @@ const StatCard = ({
         <div className="flex-1">
           <p className="text-white/80 text-sm font-medium">{title}</p>
           <p className="text-3xl font-bold mt-1">{value}</p>
-          {subtitle && (
-            <p className="text-white/70 text-xs mt-1">{subtitle}</p>
-          )}
+          {subtitle && <p className="text-white/70 text-xs mt-1">{subtitle}</p>}
           {trend && trendValue !== undefined && (
             <div className="flex items-center mt-2 text-sm">
               <TrendingUp className="w-4 h-4 mr-1" />
@@ -91,12 +90,13 @@ const StatCard = ({
 
 const EmployerDashboard = () => {
   const navigate = useNavigate();
-  const location = useLocation();
+  //const location = useLocation();
   const [dashboardData, setDashboardData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [recentApplications, setRecentApplications] = useState([]);
 
-  const getDashboardOverview = async () => {
+  const getDashboardOverview = async (silent = false) => {
     try {
       setIsLoading(true);
       setError(null);
@@ -107,10 +107,25 @@ const EmployerDashboard = () => {
       const data = res.data?.data || res.data;
 
       setDashboardData(data);
+      try {
+        const appRes = await axiosInstance.get(
+          API_PATHS.APPLICATIONS.GET_RECENT_APPLICATIONS,
+        );
+        const apps =
+          appRes.data?.data?.applications || appRes.data?.applications || [];
+        if (Array.isArray(apps)) {
+          setRecentApplications(apps);
+        }
+      } catch (err) {
+        console.error("Failed to fetch recent applications:", err);
+      }
     } catch (err) {
-      toast.error("Dashboard error:");
-      setError(err.response?.data?.message || "Failed to load dashboard data");
-      toast.error("Failed to load dashboard. Please try again.");
+      const msg =
+        err.response?.data?.message || "Failed to load dashboard data";
+      setError(msg);
+      if (!silent) {
+        toast.error("Failed to load dashboard. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -118,12 +133,21 @@ const EmployerDashboard = () => {
 
   useEffect(() => {
     getDashboardOverview();
-  }, [location.pathname]);
+  }, []); // location.pathname
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      getDashboardOverview(true);
+    }, 5*60*1000); // 5 minutes
+    return () => clearInterval(id);
+  }, []);
 
   // Calculate analytics stats
   const analytics = dashboardData?.analytics || {};
   const jobs = dashboardData?.jobs || [];
-  const applications = dashboardData?.applications || [];
+  const applications = recentApplications?.length
+    ? recentApplications
+    : dashboardData?.applications || [];
 
   // Derived stats
   const totalJobPosted = analytics.totalJobPosted || 0;
@@ -133,13 +157,15 @@ const EmployerDashboard = () => {
 
   // Calculate additional metrics
   const closedJobs = totalJobPosted - totalActiveJobs;
-  const averageApplicationsPerJob = totalJobPosted > 0 
-    ? (totalApplicationsReceived / totalJobPosted).toFixed(1) 
-    : 0;
-  const hireRate = totalApplicationsReceived > 0 
-    ? ((totalHired / totalApplicationsReceived) * 100).toFixed(1) 
-    : 0;
- const {user} = useAuth();
+  const averageApplicationsPerJob =
+    totalJobPosted > 0
+      ? (totalApplicationsReceived / totalJobPosted).toFixed(1)
+      : 0;
+  const hireRate =
+    totalApplicationsReceived > 0
+      ? ((totalHired / totalApplicationsReceived) * 100).toFixed(1)
+      : 0;
+  const { user } = useAuth();
   return (
     <DashboardLayout activeMenu="employer-dashboard">
       {isLoading ? (
@@ -166,7 +192,10 @@ const EmployerDashboard = () => {
         <div className="max-w-7xl mx-auto space-y-8 mb-20">
           {/* Welcome Section */}
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 text-white">
-            <h1 className="text-2xl font-bold">     Hey, {user?.name},Welcome Back! 👋</h1>
+            <h1 className="text-2xl font-bold">
+              {" "}
+              Hey, {user?.name},Welcome Back! 👋
+            </h1>
             <p className="text-blue-100 mt-2">
               Here's an overview of your recruitment activities
             </p>
@@ -279,9 +308,7 @@ const EmployerDashboard = () => {
                 {(!jobs || jobs.length === 0) && (
                   <div className="text-center py-8">
                     <Briefcase className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                    <p className="text-sm text-gray-500">
-                      No jobs posted yet.
-                    </p>
+                    <p className="text-sm text-gray-500">No jobs posted yet.</p>
                     <button
                       onClick={() => navigate("/post-job")}
                       className="mt-3 text-sm text-blue-600 hover:text-blue-700 font-medium"
@@ -331,7 +358,10 @@ const EmployerDashboard = () => {
           </div>
 
           {/* Quick Actions */}
-          <Card title="Quick Actions" subtitle="Common tasks to get you started">
+          <Card
+            title="Quick Actions"
+            subtitle="Common tasks to get you started"
+          >
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {[
                 {
@@ -385,7 +415,9 @@ const EmployerDashboard = () => {
                       <span className="text-sm text-gray-600">Active Rate</span>
                       <span className="font-semibold text-gray-900">
                         {totalJobPosted > 0
-                          ? ((totalActiveJobs / totalJobPosted) * 100).toFixed(1)
+                          ? ((totalActiveJobs / totalJobPosted) * 100).toFixed(
+                              1,
+                            )
                           : 0}
                         %
                       </span>
@@ -434,4 +466,3 @@ const EmployerDashboard = () => {
 };
 
 export default EmployerDashboard;
-

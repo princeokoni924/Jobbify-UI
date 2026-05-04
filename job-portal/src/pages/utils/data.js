@@ -178,10 +178,10 @@ export const NAV_LINKS = [
   { id: "find-jobs", label: "Browse Jobs", path: "/find-jobs", requiresAuth: false },
   { id: "employers", label: "Post Jobs", path: "/employer-dashboard", requiresAuth: false, authPath: "/login" },
   { id: "pricing", label: "Pricing Plans", path: "/price", requiresAuth: false },
-  { id: "partner", label: "Partner", path: "/partner", requiresAuth: false },
-  { id: "press", label: "Press & Media", path: "/press", requiresAuth: false },
+  { id: "partner", label: "Partner", path: "/partner", requiresAuth: false, badge:"coming soon" },
+  { id: "press", label: "Press & Media", path: "/press", requiresAuth: false, badge:"coming soon" },
   { id: "about", label: "About Us", path: "/about-us", requiresAuth: false },
-  { id: "contact", label: "Contact Us", path: "/contact", requiresAuth: false },
+  { id: "contact", label: "Contact Us", path: "/contact", requiresAuth: false, badge:"coming soon" },
 ];
 
 export const faqs = [
@@ -362,9 +362,9 @@ export const values = [
 
 export  const milestones = [
     { year: '2025', event: 'Jobify Founded', description: 'Started with a vision to revolutionize recruitment' },
-    // { year: '2021', event: 'AI Integration', description: 'Launched smart matching algorithm' },
-    // { year: '2023', event: 'Global Expansion', description: 'Reached 25+ countries worldwide' },
-    // { year: '2024', event: 'V2.0 Launch', description: 'Next-gen platform with enhanced features' }
+    // { year: '2026', event: 'AI Integration', description: 'Launched smart matching algorithm' },
+    // { year: '2027', event: 'Global Expansion', description: 'Reached 25+ countries worldwide' },
+    // { year: '2028', event: 'V2.0 Launch', description: 'Next-gen platform with enhanced features' }
   ];
 
 export const footerLinks = {

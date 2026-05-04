@@ -1,6 +1,5 @@
-
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Search, X, Filter, Grid, List, AlertCircle } from "lucide-react";
+import { X, Loader2, Filter, Grid, List, AlertCircle } from "lucide-react";
 import PropTypes from "prop-types";
 import LoaderSpinner from "../../components/LoaderSpinner";
 import axiosInstance from "../utils/axiosInstance";
@@ -9,11 +8,11 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../../content/AuthContext";
 import FilterContent from "../JobSeeker/components/FilterContent";
-import SearchHeader from "../JobSeeker/components/SearchHeader "
-import Navbar from "../../components/layout/Navbar";
+import SearchHeader from "../JobSeeker/components/SearchHeader ";
+import Navbar from "../../components/navs/Navbar";
 import JobCard from "../../components/Cards/JobCard";
-import MobileFiltersOverlay from "../../components/layout/MobileFiltersOverlay"
-import EmptyState from "../../components/EmptyState"
+import MobileFiltersOverlay from "../../components/layout/MobileFiltersOverlay";
+import EmptyState from "../../components/EmptyState";
 //Constants
 const VIEW_MODES = {
   GRID: "grid",
@@ -42,72 +41,73 @@ const INITIAL_EXPANDED_SECTIONS = {
 const JobSeekerDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
- 
+
   // State management
   const [jobs, setJobs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [viewMode, setViewMode] = useState(VIEW_MODES.GRID);
+  // mobile filter state
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   // filter state
   const [filters, setFilters] = useState(INITIAL_FILTERS);
 
   // collape state
-  const [expandedSections, setExpandedSections] = useState(INITIAL_EXPANDED_SECTIONS);
+  const [expandedSections, setExpandedSections] = useState(
+    INITIAL_EXPANDED_SECTIONS,
+  );
 
   // Fetch jobs from API
   const fetchJobs = useCallback(async (filterParams = {}) => {
-    try {
-      setIsLoading(true);
-      setError(null);
+      try {
+        setIsLoading(true);
+        setError(null);
 
-      // Build query parameters
-      const params = new URLSearchParams();
+        // Build query parameters
+        const params = new URLSearchParams();
 
-      // Add filters to params
-      Object.entries(filterParams).forEach(([key, value]) => {
-        if (value && value !== "" && value !== false) {
-          params.append(key, value);
+        // Add filters to params
+        Object.entries(filterParams).forEach(([key, value]) => {
+          if (value && value !== "" && value !== false) {
+            params.append(key, value);
+          }
+        });
+
+        // Add user ID if authenticated
+        if (user?._id) {
+          params.append("userId", user._id);
         }
-      });
 
-      // Add user ID if authenticated
-      if (user?._id) {
-        params.append("userId", user._id);
+        const queryString = params.toString();
+        const url = queryString
+          ? `${API_PATHS.JOBS.GET_ALL_JOBS}?${queryString}`
+          : API_PATHS.JOBS.GET_ALL_JOBS;
+
+        const response = await axiosInstance.get(url);
+
+        // Handle different response formats
+        const jobData = Array.isArray(response.data)
+          ? response.data
+          : response.data?.data?.jobs || response.data?.jobs || [];
+        setJobs(jobData);
+      } catch (err) {
+        console.error("Error fetching jobs:", err);
+
+        const errorMessage = ""
+          setError(errorMessage);
+        setJobs([]);
+
+        // Show error toast for non-network errors
+        if (!err.message?.includes("Network")) {
+          //toast.error(errorMessage);
+        }
+      } finally {
+        setIsLoading(false);
       }
-
-      const queryString = params.toString();
-      const url = queryString 
-        ? `${API_PATHS.JOBS.GET_ALL_JOBS}?${queryString}`
-        : API_PATHS.JOBS.GET_ALL_JOBS;
-
-      const response = await axiosInstance.get(url);
-
-      // Handle different response formats
-      const jobData = Array.isArray(response.data)
-        ? response.data
-        : response.data?.data?.jobs || response.data?.jobs || [];
-      setJobs(jobData);
-    } catch (err) {
-      console.error("Error fetching jobs:",err);
-      
-      const errorMessage = 
-      //  err.response?.data?.message || 
-      //   err.message || 
-        "Oops...."+", "+ "failed to fetch jobs. Please try again later.";
-      
-      setError(errorMessage);
-      setJobs([]);
-      
-      // Show error toast for non-network errors
-      if (!err.message?.includes("Network")) {
-        toast.error(errorMessage);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user]);
+    },
+    [user],
+  );
 
   // Debounced filter effect
   useEffect(() => {
@@ -116,10 +116,10 @@ const JobSeekerDashboard = () => {
       // Check if there are meaningful filters
       const hasFilters = Object.values(apiFilters).some(
         (value) =>
-          value !== ""
-        && value !== false
-        && value !== null
-        && value !== undefined
+          value !== "" &&
+          value !== false &&
+          value !== null &&
+          value !== undefined,
       );
 
       fetchJobs(hasFilters ? apiFilters : fetchJobs()); //{}
@@ -164,7 +164,7 @@ const JobSeekerDashboard = () => {
   }, []);
 
   // Toggle saved job
-  // const jobId = jobs?._id || jobs.id 
+  // const jobId = jobs?._id || jobs.id
   const toggleSavedJob = useCallback(async (jobId, isSaved) => {
     if (!jobId) {
       toast.error("Invalid job ID");
@@ -179,13 +179,13 @@ const JobSeekerDashboard = () => {
         await axiosInstance.post(API_PATHS.JOBS.SAVE_JOB(jobId));
         toast.success("Job added to saved list");
       }
-      
+
       // Update local state immediately for better UX
       //fetchJobs()
       setJobs((prevJobs) =>
         prevJobs.map((job) =>
-          job._id === jobId ? { ...job, isSaved: !isSaved } : job
-        )
+          job._id === jobId ? { ...job, isSaved: !isSaved } : job,
+        ),
       );
     } catch (err) {
       console.error("Failed to toggle saved job:", err);
@@ -196,36 +196,15 @@ const JobSeekerDashboard = () => {
     // fetchJobs
   }, []);
 
-  // Apply to job
-  // const applyToJob = useCallback(async (jobId) => {
-  //   if (!jobId) {
-  //     toast.error("Invalid job ID");
-  //     return;
-  //   }
-
-  //   try {
-  //     await axiosInstance.post(API_PATHS.APPLICATIONS.APPLY_TO_JOB(jobId));
-  //     toast.success("Application submitted successfully");
-      
-  //     // Update local state
-  //     setJobs((prevJobs) =>
-  //       prevJobs.map((job) =>
-  //         job._id === jobId ? { ...job, hasApplied: true } : job
-  //       )
-  //     );
-  //   } catch (err) {
-  //     console.error("Failed to apply to job:", err);
-  //     const errorMessage = err.response?.data?.message || "Failed to submit application. Please try again.";
-  //     toast.error(errorMessage);
-  //   }
-  // }, []);
-
   // Navigate to job details
-  const handleJobClick = useCallback((jobId) => {
-    if (jobId) {
-      navigate(`/jobs/${jobId}`);
-    }
-  }, [navigate]);
+  const handleJobClick = useCallback(
+    (jobId) => {
+      if (jobId) {
+        navigate(`/jobs/${jobId}`);
+      }
+    },
+    [navigate],
+  );
 
   // Memorized values
   const hasActiveFilters = useMemo(() => {
@@ -238,15 +217,19 @@ const JobSeekerDashboard = () => {
   const jobCount = jobs.length;
 
   // Loading state
-  if (isLoading ) { 
-    // && jobs.length === 0 
-    return <LoaderSpinner/>
+  if (isLoading) {
+    // && jobs.length === 0
+    return <LoaderSpinner />;
   }
 
+  /**
+   * Render error state
+   */
+  
   return (
-  <div className="bg-gradient-to-r from-blue-50 via-white to-gray-100 min-h-screen">
+    <div className="bg-gradient-to-r from-blue-50 via-white to-gray-100 min-h-screen">
       <Navbar />
-      
+
       <div className="mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-8 sm:py-6">
           {/* Search Header */}
@@ -257,18 +240,32 @@ const JobSeekerDashboard = () => {
 
           {/* Error Display */}
           {error && !isLoading && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <h4 className="text-sm font-medium text-red-800">Error Loading Jobs</h4>
-                <p className="text-sm text-red-600 mt-1">{error.message}</p>
+            <div className="flex flex-col mt-2 items-center justify-center py-10 lg:py-16 backdrop-blur-xl rounded-2xl border bg-red-50/60 border-red-200/20">
+              <div className="text-red-600 mb-6">
+                <AlertCircle className="w-20 h-20 mx-auto" />
               </div>
-              <button
-                onClick={() => fetchJobs(hasActiveFilters ? filters : {})}
-                className="text-sm bg-red-600 w-20 rounded-md h-10 font-bold text-white hover:bg-red-700 transition-colors"
-              >
-                Retry
-              </button>
+
+              <h4 className="text-sm font-medium text-red-800">
+                Error Loading Jobs
+              </h4>
+              <p className="text-sm text-red-600 mt-1">
+                {error.message}
+              </p>
+
+              <div className="flex gap-3">
+                <button
+                  className="bg-blue-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200"
+                  onClick={fetchJobs}
+                >
+                  Refresh Again
+                </button>
+                <button
+                  onClick={() => fetchJobs(hasActiveFilters ? filters : {})}
+                  className="text-sm bg-red-600 w-20 rounded-md h-10 font-bold text-white hover:bg-red-700 transition-colors"
+                >
+                  Retry
+                </button>
+              </div>
             </div>
           )}
 
@@ -296,9 +293,7 @@ const JobSeekerDashboard = () => {
                 <div>
                   <p className="text-gray-600 text-sm lg:text-base">
                     Showing{" "}
-                    <span className="font-bold text-gray-800">
-                      {jobCount}
-                    </span>{" "}
+                    <span className="font-bold text-gray-800">{jobCount}</span>{" "}
                     {jobCount === 1 ? "job" : "jobs"}
                   </p>
                   {hasActiveFilters && (
@@ -323,7 +318,10 @@ const JobSeekerDashboard = () => {
                     Filters
                     {hasActiveFilters && (
                       <span className="ml-1 px-2 py-0.5 bg-blue-500 text-white text-xs rounded-full">
-                        {Object.values(filters).filter(v => v && v !== "").length}
+                        {
+                          Object.values(filters).filter((v) => v && v !== "")
+                            .length
+                        }
                       </span>
                     )}
                   </button>
@@ -366,7 +364,10 @@ const JobSeekerDashboard = () => {
               )}
 
               {jobCount === 0 && !isLoading ? (
-                <EmptyState onClearFilters={clearAllFilters} hasFilters={hasActiveFilters} />
+                <EmptyState
+                  onClearFilters={clearAllFilters}
+                  hasFilters={hasActiveFilters}
+                />
               ) : (
                 <div
                   className={
@@ -402,7 +403,6 @@ const JobSeekerDashboard = () => {
         />
       </div>
     </div>
-     
   );
 };
 
@@ -410,7 +410,6 @@ EmptyState.propTypes = {
   onClearFilters: PropTypes.func.isRequired,
   hasFilters: PropTypes.bool.isRequired,
 };
-
 
 MobileFiltersOverlay.propTypes = {
   isOpen: PropTypes.bool.isRequired,

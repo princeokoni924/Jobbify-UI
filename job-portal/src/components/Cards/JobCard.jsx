@@ -1,102 +1,96 @@
 import {
-  Bookmark,
+  Heart,
   Building2,
   Calendar,
   MapPin,
   Building,
   AlertCircle,
   AlertTriangle,
+  Share2,
 } from "lucide-react";
 import moment from "moment";
+import { useState, useCallback } from "react";
 import { useAuth } from "../../content/AuthContext";
 import StatusBadge from "../StatusBadge";
 import { useNavigate } from "react-router-dom";
+import CornerBadge from "../CornerBadge";
+import Tag from "../Tag";
+import SALARY_PAYMENT_PERIOD  from "../../constant/salaryPaymentPeriod";
+import IconButton from "../IconButton";
+import Job_TYPE_STYLES  from "../../constant/jobTypeStyle";
+import ShareModal from "../ShareModal";
+import {formatSalary }from "../../pages/utils/currency"
 
-const JobCard = ({ job, onToggleSave, saved, hideApply }) => {
+const JobCard = ({ job, onToggleSave, onShare, saved, hideApply }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [shareModal, setShareModal] = useState({ open: false, url: "" });
+  const [shareLoading, setShareLoading] = useState(false);
+  const now = moment();
   const jobId = job?._id;
-  // check if job is expired or closed
-  const isExpiredJob = job?.expiresAt && new Date(job.expiresAt) < new Date();
-  const isDeadlinePass =
-    job?.applicationDeadline && new Date(job.applicationDeadline) < new Date();
-  const isClosed = job?.isClosed || isExpiredJob || isDeadlinePass;
+  const isExpiredJob = job?.expiresAt && moment(job.expiresAt).isBefore(now);
+const hasDeadlinePassed =
+  job?.applicationDeadline &&
+  moment(job.applicationDeadline).isBefore(now);
+  const isClosedJob = job?.isClosed || isExpiredJob || hasDeadlinePassed;
 
-  // Calculate days until expiration
-  const getDaysUntilExpirationDate = () => {
-    if (job?.expiresAt) {
+
+  const handleShareClick = useCallback(
+    async (e) => {
+      e.stopPropagation();
+      setShareLoading(true);
+      try {
+        const url = await onShare(jobId);
+        if (url) setShareModal({ open: true, url });
+      } finally {
+        setShareLoading(false);
+      }
+    },
+    [jobId, onShare]);
+
+
+
+  // format expiration message (absolute date)
+  const getExpirationMessage = () => {
+    if (!job?.expiresAt) {
       return null;
     }
-    const now = new Date();
-    const expiry = new Date(job?.expiresAt);
-    const different_time = expiry - now;
-    if (different_time < 0) {
-      return 0;
+    
+    const expiry = moment(job?.expiresAt);
+    if (expiry.isSameOrBefore(now, "day")) {
+      return null;
     }
-    return Math.ceil(different_time / (1000 * 60 * 60 * 24));
+    return expiry.format("D/M/YYYY");
   };
-  // Prevent application to closed/expired jobs
-  if (isClosed) {
-    // Button should already be disabled
-    return;
-  }
 
-  // Don't render closed/expired jobs for job seekers (unless viewing saved jobs)
-  if (isClosed && !saved && user?.role === "jobseeker") {
+  const getDaysUntilExpirationDate = () => {
+    if (!job?.expiresAt) {
+      return null;
+    }
+    const now = moment();
+    const expiry = moment(job.expiresAt);
+    const days = expiry.diff(now, "days");
+    return days <0 ? 0 : days;
+    
+  };
+
+  if (isClosedJob && !saved && user?.role === "jobseeker") {
     return null;
   }
   const daysUntilExpirationDate = getDaysUntilExpirationDate();
-  const formatSalary = (min, max, currency = "NGN") => {
-    const currencySymbols = {
-      NGN: "₦",
-      USD: "$",
-      EUR: "€",
-      GBP: "£",
-      CAD: "C$",
-      AUD: "A$",
-      INR: "₹",
-    };
-
-    const symbols = currencySymbols[currency] || "₦";
-
-    const formatNumber = (number) => {
-      if (number >= 1000000) {
-        return `${symbols}${(number / 1000000).toFixed(1)}M`;
-      } else if (number >= 1000) {
-        return `${symbols}${(number / 1000).toFixed(0)}K`;
-      } else {
-        return `${symbols} ${number}`;
-      }
-    };
-
-    if (!min && !max) {
-      return "Not specified";
-    }
-
-    if (min && max) {
-      return `${formatNumber(min)} - ${formatNumber(max)}`;
-    }
-    return formatNumber(min || max);
-  };
-
-  // Navigate to job details when card is clicked
+  const expirationMessage = getExpirationMessage();
   const handleCardClick = () => {
     if (jobId) {
       navigate(`/jobs/${jobId}`);
     }
   };
 
-  // Navigate to application page with resume upload
-  const handleRedirectClick = (e) => {
-    e.stopPropagation(); // Prevent card click event
-
+  const handleApplyClick = (event) => {
+    event.stopPropagation();
     if (!user) {
-      // If not logged in, redirect to login
-      navigate("/login", {});
+      navigate("/login");
       return;
     }
-
-    // Navigate to application form with job details
     navigate(`/apply/${jobId}`, {
       state: {
         job: {
@@ -111,387 +105,202 @@ const JobCard = ({ job, onToggleSave, saved, hideApply }) => {
     });
   };
 
-  return (
-    <div
-      className={`bg-white rounded-2xl border ${
-        isClosed ? "border-red-200 bg-red-50/30" : "border-gray-200"
-      } 
-        p-6 hover:shadow-xl hover:shadow-gray-200
-        transition-all duration-300
-        group relative overflow-hidden cursor-pointer`}
-      onClick={handleCardClick}
-    >
-      {/* Closed/Expired Badge  */}
-      {isClosed && (
-        <div className="absolute top-4 right-4 z-10">
-          <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-full border border-red-200">
-            <AlertCircle className="w-3 h-3" />
-            {isExpiredJob ? "Expired" : "Closed"}
-          </span>
-        </div>
-      )}
 
-      {/*  Expiring Soon Warning */}
-      {!isClosed &&
-        daysUntilExpirationDate !== null &&
-        daysUntilExpirationDate <= 7 &&
-        daysUntilExpirationDate > 0 && (
-          <div className="absolute top-4 right-4 z-10">
-            <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold bg-yellow-100 text-yellow-400 rounded-full border border-yellow-200">
-              <AlertTriangle className="w-3 h-3" />
-              {daysUntilExpirationDate} day{" "}
-              {daysUntilExpirationDate !== 1 ? "s" : ""} left
-            </span>
-          </div>
+
+  return (
+    <>
+      <div
+        onClick={handleCardClick}
+        className={`bg-white rounded-2xl border ${isClosedJob ? "border-red-200 bg-red-50/30" : "bg-gray-200"} p-6 shadow-sm hover:shadow-xl hover:shadow-gray-200 transition-shadow duration-200 overflow-hidden group cursor-pointer relative flex flex-col gap-0`}
+      >
+        {/* Corner badge for expired/closed jobs */}
+        {isClosedJob && (
+          <CornerBadge
+            icon={AlertCircle}
+            className="bg-red-100 text-red-600 border-red-700"
+          >
+            {isExpiredJob
+              ? "Expired"
+              : hasDeadlinePassed
+                ? "Deadline Passed"
+                : "Closed"}
+          </CornerBadge>
         )}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-start gap-4">
-          {job?.company.companyLogo ? (
-            <img
-              className="w-14 h-14 object-cover rounded-2xl border-2
-                border-white/20 shadow-lg"
-              src={job?.company?.companyLogo}
-              alt={job?.company?.companyName || "logo"}
-            />
-          ) : (
-            <div
-              className="w-14 h-14 bg-gray-50 
-                border-2 border-gray-200 rounded-2xl flex items-center justify-center"
+
+        {!isClosedJob &&
+          daysUntilExpirationDate !== null &&
+          daysUntilExpirationDate > 0 && (
+            <CornerBadge
+              icon={AlertTriangle}
+              className="bg-yellow-100 text-yellow-700 border-yellow-500"
             >
-              <Building2 className="w-8 h-8 text-gray-400" />
+              <span className="text-sm">
+                The job will expire on {expirationMessage}
+              </span>
+            </CornerBadge>
+          )}
+        <div className="flex items-start justify-between *:first-letter:mb-4">
+          <div className="flex items-start gap-4">
+            {job?.company?.companyLogo ? (
+              <img
+                className="w-14 h-14 object-cover rounded-2xl border-2 border-white/20 shadow-lg"
+                src={job.company.companyLogo}
+                alt={`${job.company.companyName} logo`}
+              />
+            ) : (
+              <div className="w-14 h-14 flex items-center justify-center rounded-2xl border-2 border-white/20 shadow-lg bg-gray-300">
+                <Building2 className="text-blue-500 w-8 h-8" />
+              </div>
+            )}
+
+            <div className="flex-1">
+              <h3
+                className={`font-semibold text-gray-600 text-base group-hover:text-blue-500 transition-colors leading-snug`}
+              >
+                {job?.title}
+              </h3>
+              <p className="text-gray-600 text-sm flex items-center gap-2 mt-1">
+                <Building className="w-3.5 h-3.5" />
+                {job?.company?.companyName}
+              </p>
+            </div>
+          </div>
+
+          {user && (
+            <div className="flex items-center gap-1">
+              {saved && onShare && (
+                <IconButton
+                  onClick={handleShareClick}
+                  disabled={shareLoading}
+                  label={`share`}
+                  className="hover:text-blue-100"
+                >
+                  <Share2
+                    className={`w-5 h-5 transition-colors ${shareLoading ? "text-gray-300 animate-pulse" : "text-gray-400 hover:text-blue-500"}`}
+                  />
+                </IconButton>
+              )}
+
+              <IconButton
+                onClick={(e)=>{e.stopPropagation(); onToggleSave(e)}}
+                label={job?.isSaved || saved ? "Remove from saved" : "Save job"}
+                className="hover:bg-gray-100"
+              >
+                <Heart
+                  className={`w-7 h-7 transition-colors ${
+                    job?.isSaved || saved
+                      ? "text-red-500 fill-blue-500"
+                      : "text-gray-400 hover:text-blue-600"
+                  }`}
+                />
+              </IconButton>
             </div>
           )}
-          <div className="flex-1">
-            <h3 className="font-semibold text-gray-800 text-base group-hover:text-blue-500 transition-colors leading-snug">
-              {job?.title}
-            </h3>
-            <p className="text-gray-600 text-sm flex items-center gap-2 mt-1">
-              <Building className="w-3.5 h-3.5" />
-              {job?.company?.companyName}
-            </p>
-          </div>
         </div>
-
-        {user && (
-          <button
-            className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleSave();
-            }}
-            aria-label={
-              job?.isSaved || saved ? "Remove from saved" : "Save job"
-            }
-          >
-            <Bookmark
-              className={`w-5 h-5 transition-colors ${
-                job?.isSaved || saved
-                  ? "text-blue-500 fill-blue-500"
-                  : "text-gray-400 hover:text-blue-600"
-              }`}
-            />
-          </button>
-        )}
-      </div>
-
-      <div className="mb-5">
-        <div className="flex items-center gap-2 text-xs flex-wrap">
-          <span className="flex items-center gap-1.5 bg-gray-100 text-gray-700 px-3 py-1 rounded-full font-medium">
-            <MapPin className="w-3 h-3" />
+          <div className="flex items-center gap-2 text-xs flex-wrap mb-5">
+             <Tag icon={MapPin} className="bg-gray-100 text-gray-700">
             {job?.location}
-          </span>
+          </Tag>
 
-          <span
-            className={`px-3 py-1 rounded-full font-medium ${
-              job?.type === "full_time" || job?.type === "full-time"
-                ? "bg-green-100 text-green-600"
-                : job?.type === "part_time" || job?.type === "part-time"
-                  ? "bg-yellow-100 text-yellow-600"
-                  : job?.type === "contract"
-                    ? "bg-orange-100 text-orange-600"
-                    : job?.type === "freelance"
-                      ? "bg-purple-100 text-purple-600"
-                      : job?.type === "internship"
-                        ? "bg-pink-100 text-pink-600"
-                        : job?.type === "remote"
-                          ? "bg-cyan-100 text-cyan-700"
-                          : job?.type === "hybrid"
-                            ? "bg-indigo-100 text-indigo-700"
-                            : job?.type === "onsite"
-                              ? "bg-blue-100 text-blue-700"
-                              : "bg-gray-100 text-gray-600"
-            }`}
-          >
-            {job?.type?.replace("_", " ") || "Not specified"}
-          </span>
+          <Tag className={Job_TYPE_STYLES[job?.type] ?? "bg-gray-100 text-gray-600"}>
+            {job?.type?.replace("_", " ") || ""}
+          </Tag>
 
           {job?.category && (
-            <span className="flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-medium">
-              {job?.category}
-            </span>
+            <Tag className="bg-blue-50 text-blue-700">{job.category}</Tag>
           )}
 
           {job?.experienceLevel && (
-            <span className="bg-purple-50 text-purple-700 px-3 py-1 rounded-full font-medium">
-              {job?.experienceLevel}
-            </span>
+            <Tag className="bg-purple-50 text-purple-700">{job.experienceLevel}</Tag>
           )}
-        </div>
-      </div>
+          </div>
 
-      <div className="flex items-center text-xs font-medium text-gray-500 mb-5 pb-4 border-b border-gray-100">
-        <div className="flex items-center gap-4">
+            {/* ── Meta row ── */}
+        <div className="flex items-center gap-4 text-xs font-medium text-gray-500 mb-5 pb-4 border-b border-gray-100">
           <span className="flex items-center gap-1.5">
             <Calendar className="w-3.5 h-3.5" />
-            Posted{" "}
-            {job?.createdAt ? moment(job?.createdAt).fromNow() : "recently"}
+            Posted {job?.createdAt ? moment(job.createdAt).fromNow() : "recently"}
           </span>
-          {/* Show expiration info */}
           {job?.expiresAt && !isExpiredJob && (
-            <span className="flex items-center gap-1.5 text-gray-500">
+            <span className="flex items-center gap-1.5">
               <AlertCircle className="w-3.5 h-3.5" />
-              Expires {moment(job.expiresAt).fromNow()}
+              The job will expire on {moment(job.expiresAt).format("D/M/YYYY")}
             </span>
           )}
         </div>
-      </div>
-      {/* salaryPeriod */}
-      <div className="flex items-center justify-between">
-        <div className="text-blue-600 font-semibold text-lg">
-          {formatSalary(job?.salaryMin, job?.salaryMax, job?.salaryCurrency)}
-          {job?.salaryPeriod && (
-            <span className="text-xs text-gray-500 ml-1">
-              /
-              {job?.salaryPeriod === "yearly"
-                ? "yr"
-                : job?.salaryPeriod === "monthly"
-                  ? "mo"
-                  : job?.salaryPeriod === "hourly"
-                    ? "hr"
-                    : job?.salaryPeriod}
-            </span>
-          )}
-        </div>
-
-        {!saved && (
-          <>
-            {job?.applicationStatus ? (
-              <StatusBadge status={job?.applicationStatus} />
-            ) : (
-              <>
-                {!hideApply && (
-                  <>
-                    {isClosed ? (
-                      <button
-                      disabled
-                      className="bg-gray-300 text-gray-500 text-sm px-6 py-2.5 rounded-lg cursor-not-allowed font-semibold"
-                      >
-                        {isExpiredJob ? "Expired" :" Closed"}
-                      </button>
-                    ) : (
-                      <button
-                        onClick={handleRedirectClick}
-                        className="bg-gradient-to-r from-blue-500 to-blue-600 text-sm text-white px-6 py-2.5 rounded-xl
-                      hover:from-blue-600 hover:to-blue-700 
-                      transition-all duration-200 font-semibold transform hover:-translate-y-0.5 hover:shadow-lg"
-                      >
-                        Apply Now
-                      </button>
-                    )}
-                  </>
-                )}
-              </>
+          <div className="items-center justify-between">
+            <div className="flex flex-col">
+              <div className="text-blue-600 font-semibold text-lg leading-tight">
+              {formatSalary(job?.salaryMin, job?.salaryMax, job?.salaryCurrency)}
+              {job?.salaryPeriod && (
+                <span className="text-xs text-gray-500 font-normal ml-1">
+                  /{SALARY_PAYMENT_PERIOD[job.salaryPeriod] ?? job.salaryPeriod}
+                </span>
+              )}
+            </div>
+            {job?.salaryCurrency && (
+              <span className="text-[10px] font-semibold tracking-widest text-gray-400 uppercase mt-0.5">
+                {job.salaryCurrency}
+              </span>
             )}
-          </>
+            </div>
+            {!saved && (
+            job?.applicationStatus ? (
+              <StatusBadge status={job.applicationStatus} />
+            ) : (
+              !hideApply && (
+                isClosedJob ? (
+                  <button
+                    disabled
+                    className="bg-gray-300 text-gray-500 text-sm px-6 py-2.5 rounded-lg cursor-not-allowed font-semibold"
+                  >
+                    {isExpiredJob ? "Expired" : "Closed"}
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleApplyClick}
+                    className="bg-gradient-to-r from-blue-500 to-blue-600 text-sm text-white px-6 py-2.5
+                      rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200
+                      font-semibold transform hover:-translate-y-0.5 hover:shadow-lg"
+                  >
+                    Apply Now
+                  </button>
+                )
+              )
+            )
+          )}
+          </div>
+          {/* ── Closed reason ── */}
+        {isClosedJob && job?.closedReason && (
+          <div className="mt-3 pt-3 border-t border-red-200">
+            <p className="text-xs text-red-600 flex items-start gap-1">
+              <AlertCircle className="w-3 h-3 mt-0.5 shrink-0" />
+              <span>{job.closedReason}</span>
+            </p>
+          </div>
+        )}
+
+        {/* ── Application / view counts ── */}
+        {(job?.applicationCount > 0 || job?.viewCount > 0) && (
+          <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-4 text-xs text-gray-500">
+            {job?.applicationCount > 0 && (
+              <span>{job.applicationCount} applicant{job.applicationCount !== 1 ? "s" : ""}</span>
+            )}
+            {job?.viewCount > 0 && (
+              <span>{job.viewCount} view{job.viewCount !== 1 ? "s" : ""}</span>
+            )}
+          </div>
         )}
       </div>
-       {/* Closed Reason Display */}
-      {isClosed && job?.closedReason && (
-        <div className="mt-3 pt-3 border-t border-red-200">
-          <p className="text-xs text-red-600 flex items-start gap-1">
-            <AlertCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
-            <span>{job.closedReason}</span>
-          </p>
-        </div>
+       {/* ── Share modal ── */}
+      {shareModal.open && (
+        <ShareModal
+          job={job}
+          shareUrl={shareModal.url}
+          onClose={() => setShareModal({ open: false, url: "" })}
+        />
       )}
-
-      {/* Show application count or views */}
-      {(job?.applicationCount > 0 || job?.viewCount > 0) && (
-        <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-4 text-xs text-gray-500">
-          {job?.applicationCount > 0 && (
-            <span>
-              {job.applicationCount} applicant
-              {job.applicationCount !== 1 ? "s" : ""}
-            </span>
-          )}
-          {job?.viewCount > 0 && (
-            <span>
-              {job.viewCount} view{job.viewCount !== 1 ? "s" : ""}
-            </span>
-          )}
-        </div>
-      )}
-    </div>
+    </>
   );
 };
 export default JobCard;
-
-// import { Bookmark, Building, Building2, MapPin, Calendar } from "lucide-react";
-// import moment from "moment";
-// import { useAuth } from "../../content/AuthContext";
-// import StatusBadge from "../StatusBadge";
-// import {useNavigate} from 'react-router-dom';
-
-// const JobCard = ({ job, onClick, onToggleSave, onApply, saved, hideApply }) => {
-//   const { user } = useAuth();
-//   const navigate = useNavigate();
-
-//   const goToJobDetails =()=>{
-//     navigate(`/job/${job?._id}`);
-//   }
-
-//   const goToApplyPage =()=>{
-//     navigate(`/job/${job?._id} apply`);
-//   }
-//   const formatSalary = (min, max) => {
-//     const formatNumber = (number) => {
-//       if (number >= 1000) {
-//         return `₦${(number / 1000).toFixed(0)}K`; // change the currency icon to naira
-//       } else {
-//         return `₦${number}`;
-//       }
-//     };
-//     return `${formatNumber(min)}/m`;
-//   };
-
-//   return (
-//     <div
-//       className="bg-white rounded-2xl border border-gray-200
-//     p-6 hover:shadow-xl hover:shadow-gray-200
-//      transition-all duration-300
-//       group relative overflow-hidden cursor-pointer"
-//       onClick={goToJobDetails}
-//     >
-//       <div className="flex items-start justify-between mb-4">
-//         <div className="flex items-start gap-4 ">
-//           {job?.company?.companyLogo ? (
-//             <img
-//               className="w-14 h-14 object-cover rounded-2xl border-2
-//             border-white/20 shadow-lg "
-//               src={job?.company?.companyLogo}
-//               alt={`logo`}
-//             />
-//           ) : (
-//             <div
-//               className="w-14 h-14 bg-gray-50
-//             border-2 border-gray-200 rounded-2xl flex items-center justify-center"
-//             >
-//               <Building2 className="w-8 h-8 text-gray-400" />
-//             </div>
-//           )}
-//           <div className="flex-1">
-//             <h3 className="font-semibold text-gray-800 text-base group-hover:text-blue-500 transition-colors leading-snug">
-//               {job?.title}
-//             </h3>
-//             <p className="text-gray-600 text-sm flex items-center gap-2 mt-1">
-//               <Building className="w-3.5 h-3.5" />
-//               {job?.company?.companyName}
-//             </p>
-//           </div>
-//         </div>
-//         {user && (
-//           <button
-//             className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
-//             onClick={(e) => {
-//               e.stopPropagation();
-//               onToggleSave();
-//             }}
-//           >
-//             <Bookmark
-//               className={`w-5 h-5 hover:text-blue-600 ${
-//                 job?.isSaved || saved ? "text-blue-500" : "text-gray-400"
-//               }`}
-//             />
-//           </button>
-//         )}
-//       </div>
-
-//       <div className="mb-5">
-//         <div className="flex items-center gap-2 text-xs">
-//           <span className="flex items-center gap-1.5 bg-gray-100 text-gray-700 px-3 py-1 rounded-full font-medium">
-//             <MapPin className="w-3 h-3" />
-//             {job?.location}
-//           </span>
-
-//           <span
-//             className={`px-3 py-1 rounded-full font-medium ${
-//               job?.type === "full-time"
-//                 ? "bg-green-100 text-green-600"
-//                 : job?.type === "part-time"
-//                 ? "bg-yellow-100 text-yellow-500"
-//                 : job?.type === "contract"
-//                 ? "bg-orange-100 text-orange-500"
-//                 : job?.type === "freelance"
-//                 ? "bg-purple-100 text-purple-600"
-//                 : job?.type === "internship"
-//                 ? "bg-gray-100 text-gray-500"
-//                 : job?.type === "remote"
-//                 ? "bg-cyan-100 text-cyan-700"
-//                 : job?.type === "hybrid"
-//                 ? "bg-indigo-100 text-indigo-900"
-//                 : "bg-blue-100 text-blue-600"
-//             }`}
-//           >
-//             {job?.type}
-//           </span>
-//           <span className="flex items-center gap-1.5 bg-gray-100 text-gray-700 px-3 py-1 rounded-full font-medium">
-//             {job?.category}
-//           </span>
-//         </div>
-//       </div>
-
-//       <div className="flex items-center text-xs font-medium text-gray-500 mb-5 pb-4 border-b border-gray-100">
-//         <div className="flex items-center gap-4">
-//           <span className="flex items-center gap-1.5">
-//             <Calendar className="w-3.5 h-3.5" />
-//             {job?.createdAt
-//               ? moment(job?.createdAt).format("Do MM YYYY")
-//               : "N/A"}
-//           </span>
-//         </div>
-//       </div>
-
-//       <div className="flex items-center justify-between">
-//         <div className="text-blue-600 font-semibold text-lg">
-//           {formatSalary(job?.salaryMin, job?.salaryMax)}
-//         </div>
-//         {!saved && (
-//           <>
-//             {job?.applicationStatus ? (
-//               <StatusBadge status={job?.applicationStatus} />
-//             ) : (
-//               <>
-//                 {/* Treat this code */}
-//                 {!hideApply && (
-//                   <button
-//                     onClick={(e) => {
-//                       e.stopPropagation();
-//                       onApply();
-//                     }}
-//                     className="bg-gradient-to-r from-blue-100 to-blue-100 text-sm text-blue-600 hover:text-white px-6 py-2.5 rounded-xl
-//                      hover:from-blue-500 hover:to-blue-600
-//                      transition-all duration-200 font-semibold transform hover:-translate-y-0.5"
-//                   >
-//                     Apply
-//                   </button>
-//                 )}
-//               </>
-//             )}
-//           </>
-//         )}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default JobCard;

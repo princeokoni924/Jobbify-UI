@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { useAuth } from "../../content/AuthContext";
 import axiosInstance from "../utils/axiosInstance";
 import { API_PATHS } from "../utils/apiPath";
-import { Edit3, User } from "lucide-react";
+import { Edit3, User, X} from "lucide-react";
 import toast from "react-hot-toast";
 import uploadImage from "../utils/uploadStorage";
 import UserEditProfileDetail from "./components/UserEditProfileDetail";
-
+import Navbar from "../../components/navs/Navbar";
+import { Link } from "react-router-dom";
 const UserProfile = () => {
   const { user, updateUser } = useAuth();
   const [profileData, setProfileData] = useState({
@@ -112,8 +113,12 @@ const UserProfile = () => {
 
   // Render view mode
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-      {/* Header */}
+    <div className="bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <Navbar/>
+      <div className="min-h-screen bg-blue-50 via-white to-purple-50 py-8 px-4 mt-16 lg:m-20">
+        <div className="max-w-5xl mx-auto px-4 py-8">
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+            {/* Header */}
       <div className="bg-white rounded-2xl shadow-sm p-6 flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <div className="h-20 w-20 rounded-full bg-blue-500 flex items-center justify-center text-white text-2xl font-bold overflow-hidden">
@@ -144,6 +149,9 @@ const UserProfile = () => {
           <Edit3 size={16} />
           Edit Profile
         </button>
+      </div>
+          </div>
+        </div>
       </div>
 
       {/* Body */}

@@ -40,20 +40,13 @@ const StatusBadge = ({ status }) => {
   const config = statusConfig[status] || {
      bg: "bg-gray-100",
     text: "text-gray-800",
-    label: status || "Unknown"
+    label: status
   }
   return (
 
     <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${config.bg} ${config.text}`}>
       {config.label}
     </span>
-    // <span
-    //   className={`px-3 py-1 rounded text-sm font-medium ${
-    //     statusConfig[status] || "bg-gray-100 text-gray-800"
-    //   }`}
-    // >
-    //   {status}
-    // </span>
   );
 };
 

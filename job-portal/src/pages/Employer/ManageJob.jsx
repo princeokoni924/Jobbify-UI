@@ -19,6 +19,7 @@ import DashboardLayout from "../../components/layout/DashboardLayout";
 import axiosInstance from "../utils/axiosInstance";
 import { API_PATHS } from "../utils/apiPath";
 import moment from "moment";
+import { formatSalary as fmtSalary } from "../utils/currency";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -350,11 +351,10 @@ const ManageJob = () => {
   // Format salary
   const formatSalary = (job) => {
     if (!job.salaryMin && !job.salaryMax) return "Not specified";
-    const currency = job.salaryCurrency || "NGN";
-    if (job.salaryMin && job.salaryMax) {
-      return `${currency} ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}`;
-    }
-    return `${currency} ${(job.salaryMin || job.salaryMax).toLocaleString()}`;
+    const code = job.salaryCurrency || "NGN";
+    const min = job.salaryMin ? parseInt(job.salaryMin, 10) : null;
+    const max = job.salaryMax ? parseInt(job.salaryMax, 10) : null;
+    return fmtSalary(min, max, code);
   };
 
   return (

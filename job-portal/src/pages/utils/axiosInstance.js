@@ -31,9 +31,6 @@ axiosInstance.interceptors.request.use(
 
 // ====Response interceptor=====
 axiosInstance.interceptors.response.use(
-  // (response) => {
-  //   return response;
-  // },
   (response)=>response,
   (err) => {
     
@@ -53,8 +50,9 @@ axiosInstance.interceptors.response.use(
     if (err.code === "ECONNABORTED") {
       console.error("Request timeout");
     }
-    return Promise.reject(err);
+    
   }
+  return Promise.reject(err);
   }
 
 );

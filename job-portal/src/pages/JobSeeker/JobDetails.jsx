@@ -21,12 +21,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import axiosInstance from "../utils/axiosInstance";
 import { API_PATHS } from "../utils/apiPath";
 import { useEffect, useState, useCallback } from "react";
-import Navbar from "../../components/layout/Navbar";
+import Navbar from "../../components/navs/Navbar";
 import LoadSpinner from "../../components/LoaderSpinner";
 import moment from "moment";
 import StatusBadge from "../../components/StatusBadge";
 import toast from "react-hot-toast";
-import { CURRENCIES, SAlARY_PERIOD } from "../../pages/utils/data";
+import { SAlARY_PERIOD } from "../../pages/utils/data";
+import { getCurrencySymbol } from "../utils/currency";
 
 const JobDetails = () => {
   const { user } = useAuth();
@@ -40,13 +41,11 @@ const JobDetails = () => {
   //const [isSaved, setIsSaved] = useState(false);
 
   // get currency symbol
-  const getCurrencyInfo = () => {
-    const currency = CURRENCIES.find(
-      (c) => c.value === jobDetails?.salaryCurrency,
-    );
-    return currency || CURRENCIES[0];
-  };
-  const currencyInfo = getCurrencyInfo();
+  const currencyInfo = (() => {
+    const code = jobDetails?.salaryCurrency || "NGN";
+    const symbol = getCurrencySymbol(code) || "₦";
+    return { value: code, symbol, label: `${code} (${symbol})` };
+  })();
 
   const getPaymentPeriodLabel = () => {
     const period = SAlARY_PERIOD.find(

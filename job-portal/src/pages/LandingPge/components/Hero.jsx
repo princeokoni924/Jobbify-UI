@@ -1,5 +1,4 @@
 /* eslint-disable no-unused-vars */
-import React from "react";
 import { motion } from "framer-motion";
 import { Search, ArrowRight, Users, Building2, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -60,7 +59,7 @@ const Hero = () => {
               className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center space-x-2"
             >
               <Search className="w-5 h-5" />
-              <span>Search Jobs</span>
+              <span>Browse Jobs</span>
               <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300 group-hover" />
             </motion.button>
 

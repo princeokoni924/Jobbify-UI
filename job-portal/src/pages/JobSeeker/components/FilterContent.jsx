@@ -1,4 +1,3 @@
-
 import PropTypes from "prop-types";
 import { memo, useCallback } from "react";
 import { JOB_CATEGORIES, JOB_TYPES } from "../../utils/data";

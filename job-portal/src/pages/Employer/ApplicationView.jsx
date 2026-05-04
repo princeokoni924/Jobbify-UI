@@ -86,16 +86,40 @@ const ApplicationView = () => {
     }, {});
   }, [applications]);
 
-  const handleDownloadResume = useCallback((resumeUrl) => {
-    if (!resumeUrl) {
-      console.error("Resume URL not available");
-      return;
-    }
-    
+  const handleDownloadResume = useCallback(async (resumeUrl) => {
+    if (!resumeUrl) return;
     try {
-      window.open(resumeUrl, "_blank", "noopener,noreferrer");
+      let pathSegments = [];
+      try {
+        const u = new URL(resumeUrl, window.location.origin);
+        pathSegments = u.pathname.split("/").filter(Boolean);
+      } catch {
+        pathSegments = resumeUrl.split("/").filter(Boolean);
+      }
+      const uploadsIdx = pathSegments.findIndex((seg) => seg === "uploads");
+      const resumesIdx = uploadsIdx >= 0 ? uploadsIdx + 1 : pathSegments.findIndex((seg) => seg === "resumes");
+      const userId = resumesIdx >= 0 ? pathSegments[resumesIdx + 1] : null;
+      const filename = pathSegments[pathSegments.length - 1] || null;
+
+      if (!userId || !filename) {
+        // Fallback: open direct URL if parsing fails or it's an external host
+        window.open(resumeUrl, "_blank", "noopener,noreferrer");
+        return;
+      }
+
+      const url = API_PATHS.DOWNLOAD_RESUME(userId, filename);
+      const response = await axiosInstance.get(url, { responseType: "blob" });
+      const blob = new Blob([response.data]);
+      const downloadUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(downloadUrl);
     } catch (err) {
-      console.error("Failed to open resume:", err);
+      console.error("Failed to download resume:", err);
     }
   }, []);
 

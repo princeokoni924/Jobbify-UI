@@ -52,7 +52,7 @@ const ApplicationCard = ({ application, onDownloadResume, onViewProfile }) => {
         <StatusBadge status={app.status} />
         <button
           onClick={() => onDownloadResume(resumeUrl)}
-          disabled={!resumeUrl || resumeUrl}
+          disabled={!resumeUrl}
           className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           aria-label={`Download ${applicantName}'s resume`}
         >

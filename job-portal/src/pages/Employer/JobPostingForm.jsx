@@ -22,11 +22,11 @@ import axiosInstance from "../utils/axiosInstance";
 import {
   JOB_CATEGORIES,
   JOB_TYPES,
-  CURRENCIES,
   WORK_MODE,
   SAlARY_PERIOD,
   EXPERIENCE_LEVEL,
 } from "../utils/data";
+import { getCurrencyOptions, getCurrencySymbol } from "../utils/currency";
 import InputField from "../../components/input/InputField";
 import SelectField from "../../components/input/SelectField ";
 import TextareaField from "../../components/input/TextareaField";
@@ -333,12 +333,7 @@ const JobPostingForm = () => {
   }, [jobId]);
 
   // get currency symbol
-  const displayCurrencySymbol = () => {
-    const currency = CURRENCIES.find(
-      (c) => c.value === formData.salaryCurrency,
-    );
-    return currency ? currency.symbol : "₦";
-  };
+  const displayCurrencySymbol = () => getCurrencySymbol(formData.salaryCurrency) || "₦";
   if (isPreview) {
     return (
       <DashboardLayout activeMenu={"post-job"}>
@@ -658,7 +653,7 @@ const JobPostingForm = () => {
                     onChange={(e) =>
                       handleInputChange("salaryCurrency", e.target.value)
                     }
-                    option={CURRENCIES}
+                    option={getCurrencyOptions()}
                     placeholder="Select currency"
                     error={errs.salaryCurrency}
                     icon={DollarSign}

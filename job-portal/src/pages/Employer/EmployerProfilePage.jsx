@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Building2, Mail, Edit3, Users } from "lucide-react";
 import { useAuth } from "../../content/AuthContext";
 import { API_PATHS } from "../utils/apiPath";
@@ -24,6 +24,33 @@ const EmployerProfilePage = () => {
   const [formData, setFormData] = useState({ ...profileData });
   const [uploading, setUploading] = useState({ avatar: false, logo: false });
   const [saving, setSaving] = useState(false);
+
+  // Fetch fresh profile from backend and normalize for UI
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await axiosInstance.get(API_PATHS.AUTH.GET_PROFILE);
+        const serverUser = res.data?.data?.user || res.data?.user;
+        if (serverUser) {
+          const normalized = {
+            name: serverUser.name,
+            email: serverUser.email,
+            avatar: serverUser.avatar || "",
+            companyName: serverUser.company?.name || "",
+            companyDescription: serverUser.company?.description || "",
+            companyLogo: serverUser.company?.logo || "",
+          };
+          setProfileData(normalized);
+          setFormData(normalized);
+          updateUser(normalized);
+        }
+      } catch (err) {
+        // Keep local state if GET fails
+      }
+    };
+    fetchProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // handle input
   const handleInputChange = (field, value) => {
@@ -78,11 +105,21 @@ const EmployerProfilePage = () => {
         formData,
       );
       if (response.status === 200) {
-        const updatedUser = response.data.user ?? { ...user, ...formData };
+        const serverUser = response.data?.data?.user || response.data?.user;
+        const normalized =
+          serverUser
+            ? {
+                name: serverUser.name,
+                email: serverUser.email,
+                avatar: serverUser.avatar || "",
+                companyName: serverUser.company?.name || "",
+                companyDescription: serverUser.company?.description || "",
+                companyLogo: serverUser.company?.logo || "",
+              }
+            : { ...profileData, ...formData };
         toast.success("Profile Image updated successfully!!");
-        // update profile data and exit edit mode
-        setProfileData(updatedUser);
-        updateUser(updatedUser);
+        setProfileData(normalized);
+        updateUser(normalized);
         setEditMode(false);
       }
     } catch (err) {
@@ -146,6 +183,7 @@ const EmployerProfilePage = () => {
                     <img
                       src={profileData.avatar || null}
                       alt={"Profile"}
+                      onError={(e) => { e.currentTarget.style.display = "none"; }}
                       className="w-20 h-20 object-cover
                      rounded-full border-2
                    hover:border-blue-500
